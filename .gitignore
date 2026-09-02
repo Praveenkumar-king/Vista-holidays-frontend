@@ -1,0 +1,28 @@
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env
+
+# Keep environment templates
+!.env.example
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
