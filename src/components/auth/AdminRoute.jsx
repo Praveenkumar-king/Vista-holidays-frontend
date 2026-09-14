@@ -22,7 +22,7 @@ export const AdminRoute = ({ children }) => {
   if (!isAuthenticated) {
     return (
       <Navigate 
-        to="/users/login" 
+        to="/admin/login" 
         state={{ 
           from: location, 
           message: 'Administrator credentials required to access this portal.' 
@@ -51,11 +51,11 @@ export const AdminRoute = ({ children }) => {
               Return Home
             </Link>
             <Link 
-              to="/users/login" 
+              to="/admin/login" 
               state={{ from: location, message: 'Please sign in with administrator credentials.' }}
-              className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
+              className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition-colors"
             >
-              Switch Account
+              Sign In as Admin
             </Link>
           </div>
         </div>

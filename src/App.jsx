@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { LocationProvider } from './context/LocationContext';
 import { AssistantProvider } from './context/AssistantContext';
@@ -24,6 +24,7 @@ import ContactPage from './pages/ContactPage';
 import FeedbackPage from './pages/FeedbackPage';
 import TrackStatusPage from './pages/TrackStatusPage';
 import FAQPage from './pages/FAQPage';
+import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
 import AdminContactDetailPage from './pages/admin/AdminContactDetailPage';
 import AdminFeedbackMessagesPage from './pages/admin/AdminFeedbackMessagesPage';
@@ -75,6 +76,8 @@ function App() {
                       <Route path="faq" element={<FAQPage />} />
 
                       {/* Complete Support Ticket System Admin Routes (Protected) */}
+                      <Route path="admin/login" element={<AdminLoginPage />} />
+                      <Route path="admin" element={<Navigate to="/admin/contact" replace />} />
                       <Route 
                         path="admin/contact" 
                         element={
