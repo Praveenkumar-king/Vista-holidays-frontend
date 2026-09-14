@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, Heart, Globe, ArrowUpRight } from 'lucide-react';
+import { Compass, Headphones, MessageSquare, Search, ShieldCheck, HelpCircle } from 'lucide-react';
 import { Container } from './Container';
 
 export const Footer = () => {
@@ -11,7 +11,7 @@ export const Footer = () => {
       <Container size="xl" className="py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column */}
-          <div className="lg:col-span-2 flex flex-col">
+          <div className="flex flex-col">
             <Link to="/" className="flex items-center gap-2.5 mb-4 group">
               <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-sm">
                 <Compass className="w-5 h-5" />
@@ -27,7 +27,7 @@ export const Footer = () => {
 
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>All systems operational & ready</span>
+              <span>All systems operational &amp; ready</span>
             </div>
           </div>
 
@@ -60,7 +60,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Planning */}
+          {/* AI Tools */}
           <div>
             <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-900 mb-4">
               AI Tools
@@ -77,14 +77,55 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <span className="text-slate-400 text-xs italic">
-                  Weather Forecasts (Phase 2)
-                </span>
+                <Link to="/track-status" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-brand-500" />
+                  <span>Track Ticket Status</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support & Tickets */}
+          <div>
+            <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-900 mb-4">
+              Support &amp; Feedback
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link to="/faq" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <HelpCircle className="w-3.5 h-3.5 text-brand-500" />
+                  <span>FAQ &amp; Documentation</span>
+                </Link>
               </li>
               <li>
-                <span className="text-slate-400 text-xs italic">
-                  Live Currency (Phase 2)
-                </span>
+                <Link to="/contact" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <Headphones className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Contact Support</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/feedback" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Traveler Feedback</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/track-status" className="text-slate-600 hover:text-brand-600 transition-colors">
+                  Ticket Timeline
+                </Link>
+              </li>
+              <li className="pt-2 border-t border-slate-100 flex items-center flex-wrap gap-2">
+                <Link to="/admin/contact" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+                  Admin Contact
+                </Link>
+                <span className="text-slate-300">•</span>
+                <Link to="/admin/feedback" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+                  Admin Feedback
+                </Link>
+                <span className="text-slate-300">•</span>
+                <Link to="/admin/whats-new" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+                  What's New
+                </Link>
               </li>
             </ul>
           </div>
@@ -93,8 +134,14 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 mt-12 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© {currentYear} Vista Holidays. All rights reserved.</p>
-          <div className="flex items-center gap-1 text-slate-400">
-            <span>Crafted for Frontend Developer Assessment</span>
+          <div className="flex items-center gap-3 text-slate-400">
+            <Link to="/faq" className="hover:text-slate-600 font-medium text-slate-500">FAQ</Link>
+            <span>•</span>
+            <Link to="/contact" className="hover:text-slate-600">Contact</Link>
+            <span>•</span>
+            <Link to="/feedback" className="hover:text-slate-600">Feedback</Link>
+            <span>•</span>
+            <Link to="/track-status" className="hover:text-slate-600">Track Request</Link>
           </div>
         </div>
       </Container>

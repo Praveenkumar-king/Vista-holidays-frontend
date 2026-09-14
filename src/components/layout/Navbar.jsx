@@ -8,13 +8,18 @@ import {
   CalendarDays, 
   Menu, 
   X, 
-  ArrowRight
+  ArrowRight,
+  LogOut,
+  User as UserIcon,
+  Headphones
 } from 'lucide-react';
 import { Container } from './Container';
 import { Button } from '../ui/Button';
 import { LocationIndicator } from '../location/LocationIndicator';
+import { useAuth } from '../../context/AuthContext';
 
 export const Navbar = () => {
+  const { currentUser, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const menuButtonRef = useRef(null);
@@ -57,7 +62,8 @@ export const Navbar = () => {
     { name: 'Famous Places', path: '/#places', icon: Compass },
     { name: 'Weather', path: '/weather', icon: CloudSun },
     { name: 'AI Assistant', path: '/#assistant', icon: Sparkles, badge: 'AI' },
-    { name: 'Itinerary', path: '/#itinerary', icon: CalendarDays }
+    { name: 'Itinerary', path: '/#itinerary', icon: CalendarDays },
+    { name: 'Support', path: '/contact', icon: Headphones }
   ];
 
   return (
@@ -106,7 +112,7 @@ export const Navbar = () => {
                 <NavLink
                   key={link.name}
                   to={link.path}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? isHomeTop
                         ? 'text-white bg-white/20 font-semibold'
@@ -128,8 +134,8 @@ export const Navbar = () => {
             })}
           </nav>
 
-          {/* Right Action CTA & Location Indicator Area */}
-          <div className="hidden sm:flex items-center gap-3">
+          {/* Right Action CTA, Auth & Location Indicator Area */}
+          <div className="hidden sm:flex items-center gap-2.5">
             <LocationIndicator
               className={isHomeTop ? 'bg-white/10 text-white border-white/20' : ''}
             />
@@ -144,6 +150,46 @@ export const Navbar = () => {
                 Plan Trip
               </Button>
             </Link>
+
+            {/* Authentication Action or User Profile */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200/50">
+                <div
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${
+                    isHomeTop ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-800'
+                  }`}
+                  title={`Signed in as ${currentUser?.name} (${currentUser?.email})`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-[10px] font-bold">
+                    {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="max-w-[80px] truncate">{currentUser?.name?.split(' ')[0]}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className={`p-2 rounded-xl text-xs transition-colors ${
+                    isHomeTop
+                      ? 'text-slate-300 hover:text-white hover:bg-white/10'
+                      : 'text-slate-500 hover:text-rose-600 hover:bg-rose-50'
+                  }`}
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Link to="/users/login" className="pl-1">
+                <Button
+                  variant={isHomeTop ? 'ghost' : 'secondary'}
+                  size="sm"
+                  className={isHomeTop ? 'text-white hover:bg-white/10' : ''}
+                >
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Trigger Button */}
@@ -182,6 +228,45 @@ export const Navbar = () => {
             role="region"
             aria-label="Mobile Navigation Menu"
           >
+            {/* User Session Banner in Mobile Drawer */}
+            {isAuthenticated ? (
+              <div className={`p-3 rounded-2xl flex items-center justify-between mb-3 ${
+                isHomeTop ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-900'
+              }`}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-semibold truncate">{currentUser?.name}</span>
+                    <span className="text-[11px] text-slate-400 truncate">{currentUser?.email}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex-shrink-0"
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mb-3">
+                <Link to="/users/login" className="flex-1">
+                  <Button variant={isHomeTop ? 'secondary' : 'secondary'} size="sm" className="w-full justify-center">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/users/register" className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full justify-center">
+                    Register
+                  </Button>
+                </Link>
+              </div>
+            )}
+
             <div className="pb-3 mb-2 border-b border-slate-100/10 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase text-slate-400">Target Location:</span>
               <LocationIndicator className="text-xs" />
@@ -226,7 +311,15 @@ export const Navbar = () => {
             <div className={`pt-3 border-t flex flex-col gap-2 ${
               isHomeTop ? 'border-white/10' : 'border-slate-100'
             }`}>
-              <Link to="/destinations" className="w-full">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <Link to="/contact" className="p-2.5 rounded-xl bg-slate-800/60 text-center font-medium hover:bg-slate-800">
+                  Contact Us
+                </Link>
+                <Link to="/track-status" className="p-2.5 rounded-xl bg-slate-800/60 text-center font-medium hover:bg-slate-800">
+                  Track Ticket
+                </Link>
+              </div>
+              <Link to="/destinations" className="w-full mt-1">
                 <Button variant="accent" size="md" className="w-full justify-center text-slate-950 font-bold">
                   Plan Trip with AI
                 </Button>
