@@ -25,6 +25,7 @@ import FeedbackPage from './pages/FeedbackPage';
 import TrackStatusPage from './pages/TrackStatusPage';
 import FAQPage from './pages/FAQPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
 import AdminContactDetailPage from './pages/admin/AdminContactDetailPage';
 import AdminFeedbackMessagesPage from './pages/admin/AdminFeedbackMessagesPage';
@@ -77,7 +78,14 @@ function App() {
 
                       {/* Complete Support Ticket System Admin Routes (Protected) */}
                       <Route path="admin/login" element={<AdminLoginPage />} />
-                      <Route path="admin" element={<Navigate to="/admin/contact" replace />} />
+                      <Route 
+                        path="admin" 
+                        element={
+                          <AdminRoute>
+                            <AdminDashboardPage />
+                          </AdminRoute>
+                        } 
+                      />
                       <Route 
                         path="admin/contact" 
                         element={

@@ -28,7 +28,7 @@ export const AdminLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const fromPath = location.state?.from?.pathname || '/admin/contact';
+  const fromPath = location.state?.from?.pathname || '/admin';
   const redirectNotice = location.state?.message;
 
   // If already logged in as admin, redirect directly to intended admin page

@@ -18,6 +18,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { Container } from '../../components/layout/Container';
+import { AdminNavHeader } from '../../components/layout/AdminNavHeader';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../context/ToastContext';
 import { productUpdateService } from '../../services/productUpdateService';
@@ -162,8 +163,10 @@ export const AdminProductUpdatesPage = () => {
   };
 
   return (
-    <div className="min-h-screen py-10 bg-slate-950 text-slate-100">
-      <Container size="xl">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <AdminNavHeader />
+      <div className="py-10 flex-grow">
+        <Container size="xl">
         {/* Header Ribbon */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
@@ -411,6 +414,7 @@ export const AdminProductUpdatesPage = () => {
           )}
         </div>
       </Container>
+      </div>
 
       {/* Admin Create / Edit Modal */}
       <ProductUpdateModal
