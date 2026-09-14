@@ -33,6 +33,7 @@ export const LoginPage = () => {
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
 
   const fromPath = location.state?.from?.pathname || '/';
+  const redirectMessage = location.state?.message;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +136,14 @@ export const LoginPage = () => {
             <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs sm:text-sm text-rose-700 flex items-start gap-2.5 animate-slide-up" role="alert">
               <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* Redirect Notice Banner (e.g., Administrator Credentials Required) */}
+          {!unverifiedEmail && !errorMessage && redirectMessage && (
+            <div className="mb-6 p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-900 flex items-start gap-2.5 animate-slide-up" role="alert">
+              <AlertCircle className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+              <span>{redirectMessage}</span>
             </div>
           )}
 

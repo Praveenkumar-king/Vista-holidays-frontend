@@ -17,6 +17,7 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import GuestRoute from './components/auth/GuestRoute';
+import AdminRoute from './components/auth/AdminRoute';
 
 // Support Ticket System Pages
 import ContactPage from './pages/ContactPage';
@@ -73,15 +74,57 @@ function App() {
                       <Route path="track-status" element={<TrackStatusPage />} />
                       <Route path="faq" element={<FAQPage />} />
 
-                      {/* Complete Support Ticket System Admin Routes */}
-                      <Route path="admin/contact" element={<AdminContactMessagesPage />} />
-                      <Route path="admin/contact/:id" element={<AdminContactDetailPage />} />
-                      <Route path="admin/feedback" element={<AdminFeedbackMessagesPage />} />
-                      <Route path="admin/feedback/:id" element={<AdminFeedbackDetailPage />} />
+                      {/* Complete Support Ticket System Admin Routes (Protected) */}
+                      <Route 
+                        path="admin/contact" 
+                        element={
+                          <AdminRoute>
+                            <AdminContactMessagesPage />
+                          </AdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="admin/contact/:id" 
+                        element={
+                          <AdminRoute>
+                            <AdminContactDetailPage />
+                          </AdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="admin/feedback" 
+                        element={
+                          <AdminRoute>
+                            <AdminFeedbackMessagesPage />
+                          </AdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="admin/feedback/:id" 
+                        element={
+                          <AdminRoute>
+                            <AdminFeedbackDetailPage />
+                          </AdminRoute>
+                        } 
+                      />
 
-                      {/* What's New / Product Updates Admin Routes */}
-                      <Route path="admin/whats-new" element={<AdminProductUpdatesPage />} />
-                      <Route path="admin/product-updates" element={<AdminProductUpdatesPage />} />
+                      {/* What's New / Product Updates Admin Routes (Protected) */}
+                      <Route 
+                        path="admin/whats-new" 
+                        element={
+                          <AdminRoute>
+                            <AdminProductUpdatesPage />
+                          </AdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="admin/product-updates" 
+                        element={
+                          <AdminRoute>
+                            <AdminProductUpdatesPage />
+                          </AdminRoute>
+                        } 
+                      />
 
                       {/* 404 Fallback */}
                       <Route path="*" element={<NotFoundPage />} />

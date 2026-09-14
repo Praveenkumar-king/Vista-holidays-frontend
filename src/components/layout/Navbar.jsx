@@ -3,9 +3,7 @@ import { Link, NavLink, useLocation as useRouterLocation } from 'react-router-do
 import { 
   Compass, 
   MapPin, 
-  Sparkles, 
   CloudSun, 
-  CalendarDays, 
   Menu, 
   X, 
   ArrowRight,
@@ -15,7 +13,6 @@ import {
 } from 'lucide-react';
 import { Container } from './Container';
 import { Button } from '../ui/Button';
-import { LocationIndicator } from '../location/LocationIndicator';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar = () => {
@@ -59,10 +56,7 @@ export const Navbar = () => {
   const navLinks = [
     { name: 'Home', path: '/', exact: true },
     { name: 'Destinations', path: '/destinations', icon: MapPin },
-    { name: 'Famous Places', path: '/#places', icon: Compass },
     { name: 'Weather', path: '/weather', icon: CloudSun },
-    { name: 'AI Assistant', path: '/#assistant', icon: Sparkles, badge: 'AI' },
-    { name: 'Itinerary', path: '/#itinerary', icon: CalendarDays },
     { name: 'Support', path: '/contact', icon: Headphones }
   ];
 
@@ -134,12 +128,8 @@ export const Navbar = () => {
             })}
           </nav>
 
-          {/* Right Action CTA, Auth & Location Indicator Area */}
+          {/* Right Action CTA & Auth Area */}
           <div className="hidden sm:flex items-center gap-2.5">
-            <LocationIndicator
-              className={isHomeTop ? 'bg-white/10 text-white border-white/20' : ''}
-            />
-
             <Link to="/destinations">
               <Button
                 variant={isHomeTop ? 'accent' : 'primary'}
@@ -266,11 +256,6 @@ export const Navbar = () => {
                 </Link>
               </div>
             )}
-
-            <div className="pb-3 mb-2 border-b border-slate-100/10 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase text-slate-400">Target Location:</span>
-              <LocationIndicator className="text-xs" />
-            </div>
 
             <nav className="flex flex-col gap-1 pb-3" aria-label="Mobile Navigation Links">
               {navLinks.map((link) => {

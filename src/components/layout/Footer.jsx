@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, Headphones, MessageSquare, Search, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Compass, Headphones, MessageSquare, HelpCircle } from 'lucide-react';
 import { Container } from './Container';
 
 export const Footer = () => {
@@ -9,7 +9,7 @@ export const Footer = () => {
   return (
     <footer className="bg-white border-t border-slate-200 mt-auto">
       <Container size="xl" className="py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Brand Column */}
           <div className="flex flex-col">
             <Link to="/" className="flex items-center gap-2.5 mb-4 group">
@@ -60,31 +60,6 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* AI Tools */}
-          <div>
-            <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-900 mb-4">
-              AI Tools
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link to="/#assistant" className="text-slate-600 hover:text-brand-600 transition-colors">
-                  AI Travel Assistant
-                </Link>
-              </li>
-              <li>
-                <Link to="/#itinerary" className="text-slate-600 hover:text-brand-600 transition-colors">
-                  Smart Trip Builder
-                </Link>
-              </li>
-              <li>
-                <Link to="/track-status" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
-                  <Search className="w-3.5 h-3.5 text-brand-500" />
-                  <span>Track Ticket Status</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-
           {/* Support & Tickets */}
           <div>
             <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-900 mb-4">
@@ -114,35 +89,13 @@ export const Footer = () => {
                   Ticket Timeline
                 </Link>
               </li>
-              <li className="pt-2 border-t border-slate-100 flex items-center flex-wrap gap-2">
-                <Link to="/admin/contact" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
-                  Admin Contact
-                </Link>
-                <span className="text-slate-300">•</span>
-                <Link to="/admin/feedback" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
-                  Admin Feedback
-                </Link>
-                <span className="text-slate-300">•</span>
-                <Link to="/admin/whats-new" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
-                  What's New
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 mt-12 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="pt-8 mt-12 border-t border-slate-100 text-center text-xs text-slate-500">
           <p>© {currentYear} Vista Holidays. All rights reserved.</p>
-          <div className="flex items-center gap-3 text-slate-400">
-            <Link to="/faq" className="hover:text-slate-600 font-medium text-slate-500">FAQ</Link>
-            <span>•</span>
-            <Link to="/contact" className="hover:text-slate-600">Contact</Link>
-            <span>•</span>
-            <Link to="/feedback" className="hover:text-slate-600">Feedback</Link>
-            <span>•</span>
-            <Link to="/track-status" className="hover:text-slate-600">Track Request</Link>
-          </div>
         </div>
       </Container>
     </footer>
