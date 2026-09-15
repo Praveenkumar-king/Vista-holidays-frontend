@@ -18,6 +18,16 @@ import LoginPage from './pages/LoginPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import UserProfilePage from './pages/UserProfilePage';
+import UserLayout from './layouts/UserLayout';
+import UserTripsPage from './pages/user/UserTripsPage';
+import UserAiAssistantPage from './pages/user/UserAiAssistantPage';
+import UserAiPlansPage from './pages/user/UserAiPlansPage';
+import UserSavedDestinationsPage from './pages/user/UserSavedDestinationsPage';
+import UserRecentWeatherPage from './pages/user/UserRecentWeatherPage';
+import UserRecentLocationsPage from './pages/user/UserRecentLocationsPage';
+import UserNotificationsPage from './pages/user/UserNotificationsPage';
+import UserSecurityPage from './pages/user/UserSecurityPage';
+import UserSettingsPage from './pages/user/UserSettingsPage';
 import GuestRoute from './components/auth/GuestRoute';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
@@ -69,63 +79,12 @@ function App() {
                       <Route path="destinations/:id" element={<DestinationDetailPage />} />
                       <Route path="weather" element={<WeatherInsightsPage />} />
 
-                      {/* Authenticated User Dashboard & Profile Routes */}
-                      <Route
-                        path="user/dashboard"
-                        element={
-                          <ProtectedRoute>
-                            <UserDashboardPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="users/dashboard"
-                        element={
-                          <ProtectedRoute>
-                            <UserDashboardPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="user/profile"
-                        element={
-                          <ProtectedRoute>
-                            <UserProfilePage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="users/profile"
-                        element={
-                          <ProtectedRoute>
-                            <UserProfilePage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="user/bookings"
-                        element={
-                          <ProtectedRoute>
-                            <MyBookingsPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="users/bookings"
-                        element={
-                          <ProtectedRoute>
-                            <MyBookingsPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="bookings"
-                        element={
-                          <ProtectedRoute>
-                            <MyBookingsPage />
-                          </ProtectedRoute>
-                        }
-                      />
+                      {/* Legacy User Portal Alias Redirects */}
+                      <Route path="users" element={<Navigate to="/user/dashboard" replace />} />
+                      <Route path="users/dashboard" element={<Navigate to="/user/dashboard" replace />} />
+                      <Route path="users/profile" element={<Navigate to="/user/profile" replace />} />
+                      <Route path="users/bookings" element={<Navigate to="/user/bookings" replace />} />
+                      <Route path="bookings" element={<Navigate to="/user/bookings" replace />} />
 
                       {/* User Authentication Routes (both /user/* and /users/* fully supported) */}
                       <Route
@@ -176,6 +135,30 @@ function App() {
                       <Route path="privacy-policy" element={<PrivacyPage />} />
                       <Route path="cookie-policy" element={<CookiePolicyPage />} />
                       <Route path="cookies" element={<CookiePolicyPage />} />
+                    </Route>
+
+                    {/* Dedicated Authenticated User Navigation Portal */}
+                    <Route
+                      path="user"
+                      element={
+                        <ProtectedRoute>
+                          <UserLayout />
+                        </ProtectedRoute>
+                      }
+                    >
+                      <Route index element={<Navigate to="/user/dashboard" replace />} />
+                      <Route path="dashboard" element={<UserDashboardPage />} />
+                      <Route path="profile" element={<UserProfilePage />} />
+                      <Route path="trips" element={<UserTripsPage />} />
+                      <Route path="bookings" element={<MyBookingsPage />} />
+                      <Route path="ai-assistant" element={<UserAiAssistantPage />} />
+                      <Route path="ai-plans" element={<UserAiPlansPage />} />
+                      <Route path="saved-destinations" element={<UserSavedDestinationsPage />} />
+                      <Route path="recent-weather" element={<UserRecentWeatherPage />} />
+                      <Route path="recent-locations" element={<UserRecentLocationsPage />} />
+                      <Route path="notifications" element={<UserNotificationsPage />} />
+                      <Route path="security" element={<UserSecurityPage />} />
+                      <Route path="settings" element={<UserSettingsPage />} />
                     </Route>
 
                     {/* Admin Authentication (Standalone Dark Interface) */}

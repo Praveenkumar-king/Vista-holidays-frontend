@@ -183,12 +183,14 @@ export const LocationProvider = ({ children }) => {
   );
 };
 
-export const useLocation = () => {
+export const useLocationContext = () => {
   const context = useContext(LocationContext);
   if (!context) {
-    throw new Error('useLocation must be used within a LocationProvider');
+    throw new Error('useLocationContext must be used within a LocationProvider');
   }
   return context;
 };
+
+export const useLocation = useLocationContext;
 
 export default LocationContext;
