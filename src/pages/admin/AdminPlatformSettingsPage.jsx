@@ -24,7 +24,7 @@ export const AdminPlatformSettingsPage = () => {
   const [data, setData] = useState({
     settings: {
       brandName: 'Vista Holidays',
-      supportEmail: 'support@vistaholidays.com',
+      supportEmail: 'no-reply-travelbooking@outlook.com',
       tagline: 'Discover Extraordinary Journeys with AI Travel Intelligence'
     },
     integrations: {

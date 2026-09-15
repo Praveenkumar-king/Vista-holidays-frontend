@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, Headphones, MessageSquare, HelpCircle } from 'lucide-react';
+import { Compass, Headphones, MessageSquare, HelpCircle, ShieldCheck } from 'lucide-react';
 import { Container } from './Container';
 
 export const Footer = () => {
@@ -63,7 +63,7 @@ export const Footer = () => {
           {/* Support & Tickets */}
           <div>
             <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-900 mb-4">
-              Support &amp; Feedback
+              Support &amp; Compliance
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
@@ -89,13 +89,30 @@ export const Footer = () => {
                   Ticket Timeline
                 </Link>
               </li>
+              <li>
+                <Link to="/terms" className="text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Terms &amp; Conditions</span>
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 mt-12 border-t border-slate-100 text-center text-xs text-slate-500">
+        <div className="pt-8 mt-12 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© {currentYear} Vista Holidays. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-5 sm:gap-6">
+            <Link to="/terms" className="hover:text-brand-600 transition-colors">
+              Terms &amp; Conditions
+            </Link>
+            <Link to="/privacy" className="hover:text-brand-600 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/cookie-policy" className="hover:text-brand-600 transition-colors">
+              Cookie Policy
+            </Link>
+          </div>
         </div>
       </Container>
     </footer>

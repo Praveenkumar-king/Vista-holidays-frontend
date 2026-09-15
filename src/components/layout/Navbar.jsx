@@ -10,7 +10,8 @@ import {
   LogOut,
   User as UserIcon,
   Headphones,
-  Luggage
+  Luggage,
+  LayoutDashboard
 } from 'lucide-react';
 import { Container } from './Container';
 import { Button } from '../ui/Button';
@@ -55,10 +56,13 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', path: '/', exact: true },
+    ...(isAuthenticated
+      ? [{ name: 'Dashboard', path: '/user/dashboard', icon: LayoutDashboard }]
+      : [{ name: 'Home', path: '/', exact: true }]),
     { name: 'Destinations', path: '/destinations', icon: MapPin },
     { name: 'Weather', path: '/weather', icon: CloudSun },
-    { name: 'Support', path: '/contact', icon: Headphones }
+    { name: 'Support', path: '/contact', icon: Headphones },
+    ...(isAuthenticated ? [{ name: 'My Bookings', path: '/user/bookings', icon: Luggage }] : [])
   ];
 
   return (
@@ -146,7 +150,7 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <div className="flex items-center gap-2 pl-2 border-l border-slate-200/50">
                 <Link
-                  to="/users/bookings"
+                  to="/user/bookings"
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                     isHomeTop ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
                   }`}
@@ -156,17 +160,22 @@ export const Navbar = () => {
                   <span>My Bookings</span>
                 </Link>
 
-                <div
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                    isHomeTop ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-800'
+                <Link
+                  to="/user/profile"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                    isHomeTop ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-slate-100 text-slate-800 hover:bg-slate-200/70'
                   }`}
-                  title={`Signed in as ${currentUser?.name} (${currentUser?.email})`}
+                  title={`Signed in as ${currentUser?.name} (${currentUser?.email}) - Click to edit profile`}
                 >
-                  <div className="w-5 h-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-[10px] font-bold">
-                    {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  <div className="w-5 h-5 rounded-full overflow-hidden bg-brand-500 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-white/50">
+                    {currentUser?.profileImage?.url ? (
+                      <img src={currentUser.profileImage.url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'
+                    )}
                   </div>
                   <span className="max-w-[80px] truncate">{currentUser?.name?.split(' ')[0]}</span>
-                </div>
+                </Link>
                 <button
                   type="button"
                   onClick={logout}
@@ -182,7 +191,7 @@ export const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/users/login" className="pl-1">
+              <Link to="/user/login" className="pl-1">
                 <Button
                   variant={isHomeTop ? 'ghost' : 'secondary'}
                   size="sm"
@@ -236,15 +245,19 @@ export const Navbar = () => {
                 <div className={`p-3 rounded-2xl flex items-center justify-between mb-3 ${
                   isHomeTop ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-900'
                 }`}>
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                      {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  <Link to="/user/profile" className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 border border-white/40">
+                      {currentUser?.profileImage?.url ? (
+                        <img src={currentUser.profileImage.url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'
+                      )}
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs font-semibold truncate">{currentUser?.name}</span>
                       <span className="text-[11px] text-slate-400 truncate">{currentUser?.email}</span>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     type="button"
                     onClick={logout}
@@ -256,25 +269,45 @@ export const Navbar = () => {
                   </button>
                 </div>
 
-                {/* My Bookings link in mobile drawer */}
-                <Link
-                  to="/users/bookings"
-                  className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-colors ${
-                    isHomeTop ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
-                  }`}
-                >
-                  <Luggage className="w-4 h-4 text-brand-600" />
-                  <span>My Bookings</span>
-                </Link>
+                {/* Dashboard & My Bookings & Profile links in mobile drawer */}
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <Link
+                    to="/user/dashboard"
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl text-xs font-semibold text-center transition-colors ${
+                      isHomeTop ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 mb-1 text-brand-600" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    to="/user/bookings"
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl text-xs font-semibold text-center transition-colors ${
+                      isHomeTop ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+                    }`}
+                  >
+                    <Luggage className="w-4 h-4 mb-1 text-brand-600" />
+                    <span>Bookings</span>
+                  </Link>
+                  <Link
+                    to="/user/profile"
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl text-xs font-semibold text-center transition-colors ${
+                      isHomeTop ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <UserIcon className="w-4 h-4 mb-1 text-slate-600" />
+                    <span>Profile</span>
+                  </Link>
+                </div>
               </>
             ) : (
               <div className="flex items-center gap-2 mb-3">
-                <Link to="/users/login" className="flex-1">
+                <Link to="/user/login" className="flex-1">
                   <Button variant={isHomeTop ? 'secondary' : 'secondary'} size="sm" className="w-full justify-center">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/users/register" className="flex-1">
+                <Link to="/user/register" className="flex-1">
                   <Button variant="outline" size="sm" className="w-full justify-center">
                     Register
                   </Button>

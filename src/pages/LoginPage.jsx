@@ -32,7 +32,11 @@ export const LoginPage = () => {
   const [resending, setResending] = useState(false);
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
 
-  const fromPath = location.state?.from?.pathname || '/';
+  const candidateFrom = location.state?.from?.pathname;
+  const targetDestination =
+    candidateFrom && candidateFrom !== '/' && !candidateFrom.includes('/login') && !candidateFrom.includes('/register')
+      ? candidateFrom
+      : '/user/dashboard';
   const redirectMessage = location.state?.message;
 
   const handleSubmit = async (e) => {
@@ -54,7 +58,7 @@ export const LoginPage = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate(fromPath, { replace: true });
+      navigate(targetDestination, { replace: true });
     } else if (result.unverified) {
       setUnverifiedEmail(result.email || formData.email.trim().toLowerCase());
       setServerError('Please verify your email before signing in.');

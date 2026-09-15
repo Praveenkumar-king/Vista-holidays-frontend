@@ -16,7 +16,10 @@ import NotFoundPage from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import UserDashboardPage from './pages/UserDashboardPage';
+import UserProfilePage from './pages/UserProfilePage';
 import GuestRoute from './components/auth/GuestRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
 // Public Support Ticket & Documentation Routes
@@ -24,6 +27,9 @@ import ContactPage from './pages/ContactPage';
 import FeedbackPage from './pages/FeedbackPage';
 import TrackStatusPage from './pages/TrackStatusPage';
 import FAQPage from './pages/FAQPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
+import CookiePolicyPage from './pages/CookiePolicyPage';
 
 // Admin Control Center Pages
 import AdminLoginPage from './pages/admin/AdminLoginPage';
@@ -63,12 +69,86 @@ function App() {
                       <Route path="destinations/:id" element={<DestinationDetailPage />} />
                       <Route path="weather" element={<WeatherInsightsPage />} />
 
-                      {/* User Authentication Routes */}
+                      {/* Authenticated User Dashboard & Profile Routes */}
+                      <Route
+                        path="user/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <UserDashboardPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="users/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <UserDashboardPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="user/profile"
+                        element={
+                          <ProtectedRoute>
+                            <UserProfilePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="users/profile"
+                        element={
+                          <ProtectedRoute>
+                            <UserProfilePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="user/bookings"
+                        element={
+                          <ProtectedRoute>
+                            <MyBookingsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="users/bookings"
+                        element={
+                          <ProtectedRoute>
+                            <MyBookingsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="bookings"
+                        element={
+                          <ProtectedRoute>
+                            <MyBookingsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      {/* User Authentication Routes (both /user/* and /users/* fully supported) */}
+                      <Route
+                        path="user/register"
+                        element={
+                          <GuestRoute>
+                            <RegisterPage />
+                          </GuestRoute>
+                        }
+                      />
                       <Route
                         path="users/register"
                         element={
                           <GuestRoute>
                             <RegisterPage />
+                          </GuestRoute>
+                        }
+                      />
+                      <Route
+                        path="user/login"
+                        element={
+                          <GuestRoute>
+                            <LoginPage />
                           </GuestRoute>
                         }
                       />
@@ -80,15 +160,22 @@ function App() {
                           </GuestRoute>
                         }
                       />
+                      <Route path="user/verify-email" element={<VerifyEmailPage />} />
                       <Route path="users/verify-email" element={<VerifyEmailPage />} />
-                      <Route path="users/bookings" element={<MyBookingsPage />} />
-                      <Route path="bookings" element={<MyBookingsPage />} />
 
                       {/* Support Ticket & Inquiries Public Routes */}
                       <Route path="contact" element={<ContactPage />} />
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="track-status" element={<TrackStatusPage />} />
                       <Route path="faq" element={<FAQPage />} />
+
+                      {/* Legal, Terms & Compliance Routes */}
+                      <Route path="terms" element={<TermsPage />} />
+                      <Route path="terms-and-conditions" element={<TermsPage />} />
+                      <Route path="privacy" element={<PrivacyPage />} />
+                      <Route path="privacy-policy" element={<PrivacyPage />} />
+                      <Route path="cookie-policy" element={<CookiePolicyPage />} />
+                      <Route path="cookies" element={<CookiePolicyPage />} />
                     </Route>
 
                     {/* Admin Authentication (Standalone Dark Interface) */}

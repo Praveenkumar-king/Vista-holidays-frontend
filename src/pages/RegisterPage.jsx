@@ -415,8 +415,24 @@ export const RegisterPage = () => {
                 />
                 <span className="text-xs text-slate-600 leading-normal">
                   I agree to the Vista Holidays{' '}
-                  <span className="text-brand-600 font-semibold underline underline-offset-2">Terms &amp; Conditions</span>{' '}
-                  and Privacy Policy. <span className="text-rose-500">*</span>
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-600 hover:text-brand-700 font-semibold underline underline-offset-2"
+                  >
+                    Terms &amp; Conditions
+                  </a>{' '}
+                  and{' '}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-600 hover:text-brand-700 font-semibold underline underline-offset-2"
+                  >
+                    Privacy Policy
+                  </a>
+                  . <span className="text-rose-500">*</span>
                 </span>
               </label>
               {validation.termsError && (

@@ -20,7 +20,11 @@ export const GuestRoute = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    const destination = location.state?.from?.pathname || '/';
+    const candidateFrom = location.state?.from?.pathname;
+    const destination =
+      candidateFrom && candidateFrom !== '/' && !candidateFrom.includes('/login') && !candidateFrom.includes('/register')
+        ? candidateFrom
+        : '/user/dashboard';
     return <Navigate to={destination} replace />;
   }
 

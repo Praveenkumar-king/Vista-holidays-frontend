@@ -205,7 +205,7 @@ export const ContactPage = () => {
                   <Mail className="w-4 h-4 text-brand-400 mt-0.5" />
                   <div>
                     <div className="font-semibold text-white">Email Us</div>
-                    <div className="text-slate-400">support@vistaholidays.com</div>
+                    <div className="text-slate-400">no-reply-travelbooking@outlook.com</div>
                     <div className="text-[10px] text-slate-500 mt-0.5">Responses within 24 hours</div>
                   </div>
                 </div>
@@ -424,8 +424,24 @@ export const ContactPage = () => {
                   />
                   <span className="text-xs text-slate-400 leading-normal">
                     I agree to the Vista Holidays{' '}
-                    <span className="text-brand-400 underline underline-offset-2">Terms &amp; Conditions</span>{' '}
-                    and Privacy Policy. <span className="text-rose-500">*</span>
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-400 hover:text-brand-300 underline underline-offset-2 font-medium"
+                    >
+                      Terms &amp; Conditions
+                    </a>{' '}
+                    and{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-400 hover:text-brand-300 underline underline-offset-2 font-medium"
+                    >
+                      Privacy Policy
+                    </a>
+                    . <span className="text-rose-500">*</span>
                   </span>
                 </label>
                 {touched.termsAccepted && !formData.termsAccepted && (

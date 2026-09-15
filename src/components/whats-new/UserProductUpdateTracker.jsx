@@ -22,14 +22,17 @@ export const UserProductUpdateTracker = () => {
     // Only check once per session/user mount
     if (checkPerformedRef.current) return;
 
-    // Do not pop up on admin screens or during auth verification flows
-    const isAdminRoute = location.pathname.startsWith('/admin');
+    // Do not pop up on admin screens, for admin users, or during auth verification flows
+    const isAdmin = location.pathname.startsWith('/admin') || currentUser?.role === 'admin';
     const isAuthFlowRoute = 
       location.pathname.startsWith('/users/login') ||
+      location.pathname.startsWith('/user/login') ||
       location.pathname.startsWith('/users/register') ||
-      location.pathname.startsWith('/users/verify-email');
+      location.pathname.startsWith('/user/register') ||
+      location.pathname.startsWith('/users/verify-email') ||
+      location.pathname.startsWith('/user/verify-email');
 
-    if (!isAuthenticated || !currentUser || isAdminRoute || isAuthFlowRoute) {
+    if (!isAuthenticated || !currentUser || isAdmin || isAuthFlowRoute) {
       return;
     }
 

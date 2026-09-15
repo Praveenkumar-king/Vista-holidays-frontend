@@ -191,6 +191,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = useCallback((updatedUserData) => {
+    setCurrentUser(prev => (prev ? { ...prev, ...updatedUserData } : updatedUserData));
+  }, []);
+
   const value = {
     currentUser,
     isAuthenticated: Boolean(currentUser),
@@ -200,6 +204,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     refreshUser,
+    updateUser,
     resendVerification,
     acceptTerms,
     showTermsModal
