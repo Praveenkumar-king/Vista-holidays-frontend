@@ -84,6 +84,14 @@ export const AuthProvider = ({ children }) => {
           message: error.message || 'Please verify your email before signing in.'
         };
       }
+      if (error.code === 'MAINTENANCE_MODE' || error.status === 503) {
+        toast.warning(error.message || 'System under maintenance.', 'Maintenance Active');
+        return {
+          success: false,
+          maintenance: true,
+          message: error.message || 'System under maintenance. Normal user login is temporarily disabled.'
+        };
+      }
       toast.error(error.message || 'Invalid email or password.', 'Login Failed');
       return {
         success: false,
@@ -104,6 +112,14 @@ export const AuthProvider = ({ children }) => {
       );
       return { success: true, data: response.data, message: response.message };
     } catch (error) {
+      if (error.code === 'MAINTENANCE_MODE' || error.status === 503) {
+        toast.warning(error.message || 'System under maintenance.', 'Maintenance Active');
+        return {
+          success: false,
+          maintenance: true,
+          message: error.message || 'System under maintenance. User registration is temporarily paused.'
+        };
+      }
       const isUnverified = error.unverified || error.data?.unverified;
       if (isUnverified) {
         return {

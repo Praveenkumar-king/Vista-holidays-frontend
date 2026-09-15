@@ -1,221 +1,306 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Mail, 
-  MessageSquare, 
-  Sparkles, 
-  ArrowRight, 
-  ShieldCheck, 
-  Clock, 
-  Layers, 
-  CheckCircle2, 
+import {
+  Users,
+  HelpCircle,
+  Mail,
+  MessageSquare,
+  Sparkles,
+  Megaphone,
+  Wrench,
+  BarChart3,
+  ArrowRight,
   RefreshCw,
-  ExternalLink
+  Clock,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
-import { Container } from '../../components/layout/Container';
-import { AdminNavHeader } from '../../components/layout/AdminNavHeader';
-import { useAuth } from '../../context/AuthContext';
-import { ticketService } from '../../services/ticketService';
-import { productUpdateService } from '../../services/productUpdateService';
+import { AdminLayout } from '../../layouts/AdminLayout';
+import { AdminBadge } from '../../components/admin/AdminBadge';
+import { adminService } from '../../services/adminService';
+import { useToast } from '../../context/ToastContext';
 
 export const AdminDashboardPage = () => {
-  const { currentUser } = useAuth();
-
-  const [contactSummary, setContactSummary] = useState({ total: 0, open: 0 });
-  const [feedbackSummary, setFeedbackSummary] = useState({ total: 0, pending: 0 });
-  const [updatesSummary, setUpdatesSummary] = useState({ total: 0, published: 0 });
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
+  const [overview, setOverview] = useState({
+    kpis: {
+      users: { total: 0, verified: 0, pending: 0 },
+      supportTickets: { active: 0, total: 0 },
+      contactMessages: { open: 0, total: 0 },
+      feedbackMessages: { pending: 0, total: 0 },
+      productUpdates: { total: 0, published: 0 },
+      announcements: { active: 0 }
+    },
+    liveActivities: []
+  });
 
-  const fetchMetrics = async () => {
+  const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [contactRes, feedbackRes, updatesRes] = await Promise.allSettled([
-        ticketService.getContactMessages({}),
-        ticketService.getFeedbackMessages({}),
-        productUpdateService.getAdminUpdates({})
-      ]);
-
-      if (contactRes.status === 'fulfilled' && contactRes.value?.data?.summary) {
-        setContactSummary(contactRes.value.data.summary);
+      const response = await adminService.getDashboardOverview();
+      if (response.success && response.data) {
+        setOverview(response.data);
       }
-      if (feedbackRes.status === 'fulfilled' && feedbackRes.value?.data?.summary) {
-        setFeedbackSummary(feedbackRes.value.data.summary);
-      }
-      if (updatesRes.status === 'fulfilled' && updatesRes.value?.data?.summary) {
-        setUpdatesSummary(updatesRes.value.data.summary);
-      }
-    } catch {
-      // Graceful fallback
+    } catch (err) {
+      toast.error(err.message || 'Failed to fetch dashboard metrics.', 'Error');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMetrics();
+    fetchDashboardData();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Top Admin Navigation Bar */}
-      <AdminNavHeader />
+  const formatISTDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(d);
+  };
 
-      <Container size="xl" className="py-10 flex-grow">
-        {/* Welcome Ribbon */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-800">
+  const getStatusBadgeVariant = (status) => {
+    const s = String(status).toLowerCase();
+    if (['open', 'new', 'active', 'published'].includes(s)) return 'info';
+    if (['in progress', 'reviewed', 'pending'].includes(s)) return 'warning';
+    if (['resolved', 'closed', 'verified'].includes(s)) return 'success';
+    if (['suspended', 'expired'].includes(s)) return 'error';
+    return 'neutral';
+  };
+
+  return (
+    <AdminLayout onRefresh={fetchDashboardData} refreshing={loading}>
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Card 1: Registered Users */}
+        <div className="p-5 rounded-2xl bg-[#0c1222]/90 border border-slate-800/90 flex flex-col justify-between hover:border-slate-700/80 transition-all">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-400 mb-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Administrator Portal Hub</span>
+            <div className="flex items-center justify-between text-slate-400 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider">Registered Users</span>
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <Users className="w-4 h-4" />
+              </div>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-white tracking-tight">
-              Welcome back, {currentUser?.name || 'Administrator'}
-            </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Manage incoming support tickets, customer feedback, and product release updates in one central dashboard.
+            <div className="text-2xl sm:text-3xl font-extrabold text-white">
+              {overview.kpis.users.total}
+              <span className="text-xs font-medium text-slate-400 ml-2">
+                ({overview.kpis.users.verified} verified)
+              </span>
+            </div>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/60">
+            {overview.kpis.users.pending} pending email verification
+          </div>
+        </div>
+
+        {/* Card 2: Active Support Tickets */}
+        <div className="p-5 rounded-2xl bg-[#0c1222]/90 border border-slate-800/90 flex flex-col justify-between hover:border-slate-700/80 transition-all">
+          <div>
+            <div className="flex items-center justify-between text-slate-400 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider">Active Support Tickets</span>
+              <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                <HelpCircle className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-white">
+              {overview.kpis.supportTickets.active}
+            </div>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/60">
+            Inquiries awaiting operational response
+          </div>
+        </div>
+
+        {/* Card 3: Pending Contact Inquiries */}
+        <div className="p-5 rounded-2xl bg-[#0c1222]/90 border border-slate-800/90 flex flex-col justify-between hover:border-slate-700/80 transition-all">
+          <div>
+            <div className="flex items-center justify-between text-slate-400 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider">Pending Contact Inquiries</span>
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                <Mail className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-cyan-400">
+              {overview.kpis.contactMessages.open}
+            </div>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/60">
+            {overview.kpis.contactMessages.total} total public inquiries logged
+          </div>
+        </div>
+
+        {/* Card 4: Pending User Feedback */}
+        <div className="p-5 rounded-2xl bg-[#0c1222]/90 border border-slate-800/90 flex flex-col justify-between hover:border-slate-700/80 transition-all">
+          <div>
+            <div className="flex items-center justify-between text-slate-400 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider">Pending Traveler Feedback</span>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400">
+              {overview.kpis.feedbackMessages.pending}
+            </div>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/60">
+            {overview.kpis.feedbackMessages.total} total survey ratings recorded
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Callout Ribbon */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-[#0d1629] to-slate-900 border border-slate-800/90 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
+            <BarChart3 className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white">Analytics Control Center</h3>
+            <p className="text-xs text-slate-400">
+              Explore traveler sentiment trends, inquiries distribution, and platform system metrics.
             </p>
           </div>
+        </div>
 
-          <button
-            onClick={fetchMetrics}
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
+        <Link
+          to="/admin/analytics"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-600 border border-indigo-500/30 transition-all shrink-0"
+        >
+          <span>View Trends</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* Quick Operations */}
+      <div className="mb-10">
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">
+          Quick Operations
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          <Link
+            to="/admin/users"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Overview</span>
-          </button>
-        </div>
+            <Users className="w-5 h-5 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Manage Users</span>
+          </Link>
 
-        {/* 3 Core Management Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {/* Card 1: Contact Support Messages */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-5 group-hover:scale-105 transition-transform">
-                <Mail className="w-6 h-6" />
-              </div>
+          <Link
+            to="/admin/support-tickets"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <HelpCircle className="w-5 h-5 text-rose-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Support Desk</span>
+          </Link>
 
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">
-                Inquiries &amp; Assistance
-              </span>
-              <h2 className="text-xl font-bold text-white mt-1 mb-2">
-                Contact Messages
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6">
-                Review traveler inquiries, change ticket statuses, reply with admin messages, and generate reports.
-              </p>
+          <Link
+            to="/admin/contact"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <Mail className="w-5 h-5 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Contact Inbox</span>
+          </Link>
 
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-2xl border border-slate-800/80 mb-6">
-                <div>
-                  <div className="text-[10px] uppercase text-slate-500 font-bold">Total Tickets</div>
-                  <div className="text-xl font-extrabold text-white mt-0.5">{contactSummary.total ?? 0}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase text-amber-400 font-bold">Open Tickets</div>
-                  <div className="text-xl font-extrabold text-amber-400 mt-0.5">{contactSummary.open ?? 0}</div>
-                </div>
-              </div>
-            </div>
+          <Link
+            to="/admin/feedback"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <MessageSquare className="w-5 h-5 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">User Feedback</span>
+          </Link>
 
-            <Link
-              to="/admin/contact"
-              className="inline-flex items-center justify-between px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md shadow-rose-950/50"
-            >
-              <span>Manage Contact Tickets</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+          <Link
+            to="/admin/whats-new"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <Sparkles className="w-5 h-5 text-sky-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">What's New</span>
+          </Link>
 
-          {/* Card 2: Traveler Feedback */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 group-hover:scale-105 transition-transform">
-                <MessageSquare className="w-6 h-6" />
-              </div>
+          <Link
+            to="/admin/announcements"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <Megaphone className="w-5 h-5 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Announcements</span>
+          </Link>
 
-              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
-                User Reviews &amp; Ratings
-              </span>
-              <h2 className="text-xl font-bold text-white mt-1 mb-2">
-                Traveler Feedback
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6">
-                Inspect user ratings, survey responses, traveler recommendations, and sentiment feedback.
-              </p>
+          <Link
+            to="/admin/maintenance"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <Wrench className="w-5 h-5 text-rose-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Maintenance</span>
+          </Link>
 
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-2xl border border-slate-800/80 mb-6">
-                <div>
-                  <div className="text-[10px] uppercase text-slate-500 font-bold">Submissions</div>
-                  <div className="text-xl font-extrabold text-white mt-0.5">{feedbackSummary.total ?? 0}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase text-purple-400 font-bold">Pending Review</div>
-                  <div className="text-xl font-extrabold text-purple-400 mt-0.5">{feedbackSummary.open ?? feedbackSummary.pending ?? 0}</div>
-                </div>
-              </div>
-            </div>
-
-            <Link
-              to="/admin/feedback"
-              className="inline-flex items-center justify-between px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-md shadow-purple-950/50"
-            >
-              <span>Manage Feedback</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Card 3: What's New & Product Updates */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all group">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-5 group-hover:scale-105 transition-transform">
-                <Sparkles className="w-6 h-6" />
-              </div>
-
-              <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">
-                Release Announcements
-              </span>
-              <h2 className="text-xl font-bold text-white mt-1 mb-2">
-                What's New &amp; Releases
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6">
-                Publish feature slides, upload Cloudinary assets, configure changelogs, and announce platform updates.
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-2xl border border-slate-800/80 mb-6">
-                <div>
-                  <div className="text-[10px] uppercase text-slate-500 font-bold">Total Releases</div>
-                  <div className="text-xl font-extrabold text-white mt-0.5">{updatesSummary.total ?? 0}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase text-emerald-400 font-bold">Published</div>
-                  <div className="text-xl font-extrabold text-emerald-400 mt-0.5">{updatesSummary.published ?? 0}</div>
-                </div>
-              </div>
-            </div>
-
-            <Link
-              to="/admin/whats-new"
-              className="inline-flex items-center justify-between px-4 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-md shadow-sky-950/50"
-            >
-              <span>Manage What's New</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick System Info */}
-        <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Admin Gateway Operational • Session: <strong className="text-white">{currentUser?.email}</strong></span>
-          </div>
-          <Link to="/" className="text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors">
-            <span>View Public Application</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+          <Link
+            to="/admin/analytics"
+            className="p-3.5 rounded-2xl bg-[#0c1222] border border-slate-800/90 hover:border-slate-700 text-center flex flex-col items-center justify-center group transition-all"
+          >
+            <BarChart3 className="w-5 h-5 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-200 group-hover:text-white">Analytics</span>
           </Link>
         </div>
-      </Container>
-    </div>
+      </div>
+
+      {/* Live Activity Stream */}
+      <div className="rounded-2xl bg-[#0c1222]/80 border border-slate-800/80 p-6">
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-800/60">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-300">
+            Live Activity Stream
+          </div>
+          <div className="text-[11px] text-slate-400">
+            Real-time database events
+          </div>
+        </div>
+
+        {overview.liveActivities.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No recent activity recorded yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-800/60">
+            {overview.liveActivities.map((act) => (
+              <div
+                key={act.id}
+                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-slate-800/20 px-2 rounded-xl transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <Link
+                      to={act.link}
+                      className="text-xs sm:text-sm font-bold text-white hover:text-rose-400 transition-colors"
+                    >
+                      {act.title}
+                    </Link>
+                    <AdminBadge variant={getStatusBadgeVariant(act.status)}>
+                      {act.status}
+                    </AdminBadge>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      • {act.category}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 truncate max-w-2xl">
+                    {act.description}
+                  </p>
+                </div>
+
+                <div className="text-[11px] text-slate-400 whitespace-nowrap shrink-0">
+                  {formatISTDate(act.timestamp)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 };
 

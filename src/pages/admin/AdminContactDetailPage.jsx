@@ -1,28 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Send, 
-  Clock, 
-  CheckCircle2, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  FileText, 
-  ShieldCheck, 
-  Globe, 
-  Circle,
-  MessageSquare,
+import {
+  ArrowLeft,
   RefreshCw,
-  Headphones
+  Calendar,
+  CheckCircle2,
+  Circle,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  Clock,
+  ShieldCheck,
+  Check
 } from 'lucide-react';
-import { Container } from '../../components/layout/Container';
-import { Button } from '../../components/ui/Button';
-import { useToast } from '../../context/ToastContext';
+import { AdminLayout } from '../../layouts/AdminLayout';
+import { AdminBadge } from '../../components/admin/AdminBadge';
 import { ticketService } from '../../services/ticketService';
+import { useToast } from '../../context/ToastContext';
 
-const STATUS_OPTIONS = ['Open', 'In Progress', 'Resolved', 'Closed'];
+const WORKFLOW_STEPS = [
+  { step: 'STEP 01', label: 'Received', desc: 'Inquiry logged in operations desk', statusKey: 'Open' },
+  { step: 'STEP 02', label: 'In-Progress', desc: 'Assigned and being actively reviewed', statusKey: 'In Progress' },
+  { step: 'STEP 03', label: 'Resolved', desc: 'Response prepared and sent', statusKey: 'Resolved' },
+  { step: 'STEP 04', label: 'Closed', desc: 'Inquiry finalized and archived', statusKey: 'Closed' }
+];
 
 export const AdminContactDetailPage = () => {
   const { id } = useParams();
@@ -31,9 +34,9 @@ export const AdminContactDetailPage = () => {
 
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [statusUpdating, setStatusUpdating] = useState(false);
-  const [adminMessageInput, setAdminMessageInput] = useState('');
-  const [sendingMessage, setSendingMessage] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('Open');
+  const [adminNote, setAdminNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchTicket = async () => {
     setLoading(true);
@@ -41,12 +44,13 @@ export const AdminContactDetailPage = () => {
       const response = await ticketService.getContactMessageById(id);
       if (response.success && response.data?.ticket) {
         setTicket(response.data.ticket);
+        setSelectedStatus(response.data.ticket.status || 'Open');
       } else {
-        toast.error('Ticket not found.', 'Error');
+        toast.error('Contact inquiry not found.', 'Error');
         navigate('/admin/contact');
       }
     } catch (err) {
-      toast.error(err.message || 'Failed to load ticket details.', 'Error');
+      toast.error(err.message || 'Failed to fetch ticket details.', 'Error');
       navigate('/admin/contact');
     } finally {
       setLoading(false);
@@ -57,279 +61,332 @@ export const AdminContactDetailPage = () => {
     fetchTicket();
   }, [id]);
 
-  const handleStatusChange = async (newStatus) => {
-    if (!ticket || newStatus === ticket.status || statusUpdating) return;
-
-    setStatusUpdating(true);
-    try {
-      const response = await ticketService.updateContactStatus(ticket._id, newStatus);
-      if (response.success && response.data?.ticket) {
-        setTicket(response.data.ticket);
-        toast.success(`Status updated to ${newStatus}.`, 'Status Saved');
-      }
-    } catch (err) {
-      toast.error(err.message || 'Failed to update status.', 'Error');
-    } finally {
-      setStatusUpdating(false);
-    }
-  };
-
-  const handleSendMessage = async (e) => {
+  const handleUpdateStatusAndNotify = async (e) => {
     e.preventDefault();
-    if (!adminMessageInput.trim() || sendingMessage) return;
+    if (!ticket || submitting) return;
 
-    setSendingMessage(true);
+    setSubmitting(true);
     try {
-      const response = await ticketService.sendContactAdminMessage(ticket._id, adminMessageInput.trim());
-      if (response.success && response.data?.ticket) {
-        setTicket(response.data.ticket);
-        setAdminMessageInput('');
-        toast.success(response.message || 'Admin message sent to user.', 'Message Delivered');
+      let updatedTicket = ticket;
+
+      // 1. Update status if changed
+      if (selectedStatus !== ticket.status) {
+        const statusRes = await ticketService.updateContactStatus(ticket._id, selectedStatus);
+        if (statusRes.success && statusRes.data?.ticket) {
+          updatedTicket = statusRes.data.ticket;
+        }
       }
+
+      // 2. Send Admin Message if typed
+      if (adminNote.trim()) {
+        const msgRes = await ticketService.sendContactAdminMessage(ticket._id, adminNote.trim());
+        if (msgRes.success && msgRes.data?.ticket) {
+          updatedTicket = msgRes.data.ticket;
+        }
+        setAdminNote('');
+      }
+
+      setTicket(updatedTicket);
+      toast.success('Inquiry updated and notification dispatched.', 'Updated');
     } catch (err) {
-      toast.error(err.message || 'Failed to send message.', 'Error');
+      toast.error(err.message || 'Failed to update ticket.', 'Error');
     } finally {
-      setSendingMessage(false);
+      setSubmitting(false);
     }
   };
 
-  const formatDateTime = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      const d = new Date(dateString);
-      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
-        ' • ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    } catch {
-      return String(dateString);
-    }
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(d);
   };
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-slate-950 text-slate-400">
-        <RefreshCw className="w-8 h-8 animate-spin text-rose-500" />
-      </div>
+      <AdminLayout>
+        <div className="py-24 text-center text-xs text-slate-400">
+          Loading contact inquiry details...
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!ticket) return null;
 
+  // Determine current step index in progression
+  const currentStepIdx = WORKFLOW_STEPS.findIndex(s => s.statusKey.toLowerCase() === (ticket.status || 'Open').toLowerCase());
+  const activeStep = currentStepIdx === -1 ? 0 : currentStepIdx;
+
+  const locationString = [ticket.city, ticket.state, ticket.country].filter(Boolean).join(', ') || 'Not specified';
+
   return (
-    <div className="min-h-screen py-10 bg-slate-950 text-slate-100">
-      <Container size="xl">
-        {/* Back navigation */}
-        <div className="mb-6">
-          <Link
-            to="/admin/contact"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Contact Messages Directory</span>
-          </Link>
-        </div>
+    <AdminLayout>
+      {/* Back and Action Buttons */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <Link
+          to="/admin/contact"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Contact Messages Directory</span>
+        </Link>
 
-        {/* SECTION 18 DYNAMIC HEADER WITH RED/ORANGE GRADIENT */}
-        <div className="rounded-3xl overflow-hidden shadow-card border border-rose-500/30 mb-8 bg-slate-900">
-          <div className="bg-gradient-to-r from-red-700 via-rose-600 to-amber-600 p-6 sm:p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <div className="text-[11px] font-extrabold uppercase tracking-widest text-amber-200 mb-1">
-                VISTA HOLIDAYS SUPPORT TICKET
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight flex items-center gap-2.5">
-                <Headphones className="w-7 h-7 text-amber-200" />
-                <span>🎧 {ticket.name}'s Contact Message</span>
+        <button
+          onClick={fetchTicket}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition-all"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* Header Banner Card (Screenshot 8 style) */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-[#0c1222] border border-slate-800/90 mb-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
+          <div>
+            <div className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">
+              Contact Inquiry Control
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-mono font-extrabold text-cyan-400 tracking-tight">
+                {ticket.ticketId}
               </h1>
-              <div className="text-sm font-mono text-amber-100 mt-1 font-bold">
-                Ref ID: <span className="underline decoration-amber-300 underline-offset-4">{ticket.ticketId}</span>
-              </div>
+              <AdminBadge variant={ticket.status === 'Closed' ? 'neutral' : 'info'} dot>
+                {ticket.status}
+              </AdminBadge>
             </div>
+          </div>
 
-            {/* Status Selector Dropdown */}
-            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-3 border border-white/20 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-200">
-                TICKET STATUS:
-              </span>
-              <select
-                value={ticket.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                disabled={statusUpdating}
-                className="bg-slate-950 text-white font-bold text-xs uppercase tracking-wider border border-white/30 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
-              >
-                {STATUS_OPTIONS.map((st) => (
-                  <option key={st} value={st} className="bg-slate-900 text-white">
-                    {st}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <Calendar className="w-4 h-4 text-slate-400" />
+            <span>Submitted: {formatDate(ticket.createdAt)}</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT 7 COLS: TICKET DETAILS + ADMIN MESSAGE COMPOSER */}
-          <div className="lg:col-span-7 space-y-8">
-            {/* Ticket Details (Section 19) */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-card backdrop-blur-xl">
-              <h3 className="text-base font-display font-bold text-white mb-5 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-rose-400" />
-                <span>Inquiry Details</span>
-              </h3>
+        {/* INQUIRY PROGRESSION WORKFLOW */}
+        <div className="mt-6">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">
+            Inquiry Progression Workflow
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">First Name &amp; Last Name</span>
-                  <div className="text-sm font-bold text-white mt-1">{ticket.name}</div>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {WORKFLOW_STEPS.map((s, idx) => {
+              const isPassed = idx <= activeStep;
+              const isCurrent = idx === activeStep;
 
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Email Address</span>
-                  <div className="text-sm font-mono text-slate-200 mt-1">{ticket.email}</div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Mobile Number</span>
-                  <div className="text-sm text-slate-200 mt-1">{ticket.mobile || 'N/A'}</div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Location (City, State, Country)</span>
-                  <div className="text-sm text-slate-200 mt-1">
-                    {[ticket.city, ticket.state, ticket.country].filter(Boolean).join(', ') || 'N/A'}
+              return (
+                <div
+                  key={s.step}
+                  className={`p-4 rounded-2xl border transition-all ${
+                    isCurrent
+                      ? 'bg-blue-600/10 border-blue-500/80 shadow-md shadow-blue-950/40'
+                      : isPassed
+                      ? 'bg-[#080d19] border-emerald-500/40'
+                      : 'bg-[#080d19]/60 border-slate-800/60 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      {s.step}
+                    </span>
+                    {isPassed ? (
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <Check className="w-3 h-3" />
+                      </div>
+                    ) : (
+                      <Circle className="w-4 h-4 text-slate-600" />
+                    )}
                   </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 sm:col-span-2">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Query Type</span>
-                  <div className="text-sm font-bold text-rose-400 mt-1">{ticket.queryType}</div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800/80 sm:col-span-2">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold block mb-2">Submitted Message</span>
-                  <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
-                    {ticket.message}
+                  <h4 className="text-sm font-bold text-white mb-0.5">
+                    {s.label}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 leading-snug">
+                    {s.desc}
                   </p>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Submission Timestamp</span>
-                  <div className="text-xs font-mono text-slate-300 mt-1">{formatDateTime(ticket.createdAt)}</div>
-                </div>
+      {/* 2-Column Details Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Columns: Message Details + Status History Log */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Query Type & Full Message */}
+          <div className="p-6 rounded-2xl bg-[#0c1222] border border-slate-800/80 space-y-4">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Query Type
+              </div>
+              <h3 className="text-lg font-bold text-white">
+                {ticket.queryType}
+              </h3>
+            </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-400 uppercase tracking-wider font-semibold">Terms Acceptance</span>
-                  <div className="text-xs text-emerald-400 font-semibold mt-1 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Accepted on Submit</span>
-                  </div>
-                </div>
-
-                {ticket.ipAddress && (
-                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 sm:col-span-2">
-                    <span className="text-slate-400 uppercase tracking-wider font-semibold">Client IP Address</span>
-                    <div className="text-xs font-mono text-slate-400 mt-1">{ticket.ipAddress}</div>
-                  </div>
-                )}
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Full Message
+              </div>
+              <div className="p-4 rounded-xl bg-[#080d19] border border-slate-800/80 text-xs text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
+                {ticket.message}
               </div>
             </div>
 
-            {/* ADMIN SPECIFIC MESSAGE SYSTEM (Section 12 & 14) */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-card backdrop-blur-xl">
-              <h3 className="text-base font-display font-bold text-white mb-2 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-sky-400" />
-                <span>Admin Message to Traveler</span>
-              </h3>
-              <p className="text-xs text-slate-400 mb-5">
-                Send an official message to this specific ticket. The traveler will immediately receive an email notification with your message and live tracking link.
-              </p>
-
-              <form onSubmit={handleSendMessage} className="space-y-4">
-                <textarea
-                  rows={4}
-                  placeholder="Type a message to the user..."
-                  value={adminMessageInput}
-                  onChange={(e) => setAdminMessageInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                />
-
-                <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    loading={sendingMessage}
-                    disabled={!adminMessageInput.trim() || sendingMessage}
-                    iconRight={Send}
-                    className="font-bold shadow-md bg-sky-600 hover:bg-sky-500 text-white"
-                  >
-                    Send Message
-                  </Button>
-                </div>
-              </form>
-
-              {/* Message thread history */}
-              {ticket.messages && ticket.messages.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                    Message History ({ticket.messages.length})
-                  </h4>
-
-                  {ticket.messages.map((m, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/90">
-                      <div className="flex items-center justify-between text-xs mb-1.5">
-                        <span className="font-bold text-sky-400">{m.senderName || 'Vista Holidays Support Team'}</span>
-                        <span className="text-[11px] text-slate-500 font-mono">{formatDateTime(m.createdAt)}</span>
-                      </div>
-                      <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
-                        {m.message}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-2 pt-2 text-xs font-semibold text-emerald-400">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Terms &amp; Conditions Accepted: Yes</span>
             </div>
           </div>
 
-          {/* RIGHT 5 COLS: ACTIVITY TIMELINE */}
-          <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-card backdrop-blur-xl">
-            <h3 className="text-base font-display font-bold text-white mb-6 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-400" />
-              <span>Activity &amp; Resolution Timeline</span>
+          {/* Status History Log (Timeline) */}
+          <div className="p-6 rounded-2xl bg-[#0c1222] border border-slate-800/80">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-slate-800/60">
+              Status History Log
             </h3>
 
-            <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
-              {ticket.timeline && ticket.timeline.length > 0 ? (
-                ticket.timeline.map((item, idx) => {
-                  const isLatest = idx === ticket.timeline.length - 1;
-                  return (
-                    <div key={idx} className="relative">
-                      <div className={`absolute -left-[28px] top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] border ${
-                        isLatest
-                          ? 'bg-rose-500 border-rose-400 text-white'
-                          : 'bg-slate-950 border-emerald-500 text-emerald-400'
-                      }`}>
-                        {isLatest ? <Circle className="w-2 h-2 fill-current" /> : <CheckCircle2 className="w-3 h-3" />}
-                      </div>
-
-                      <div>
-                        <div className="text-xs font-bold text-white">{item.message}</div>
-                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">{formatDateTime(item.createdAt)}</div>
+            {(!ticket.timeline || ticket.timeline.length === 0) ? (
+              <div className="text-xs text-slate-400 py-4 text-center">
+                No history log available.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {ticket.timeline.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-xl bg-[#080d19] border border-slate-800/80 flex flex-col sm:flex-row sm:items-start justify-between gap-2 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-2">
+                        <span>{item.type === 'INITIAL_SUBMISSION' ? 'Received' : item.type === 'STATUS_CHANGE' ? item.status || 'Status Change' : 'Admin Message'}</span>
                         {item.status && (
-                          <span className="inline-block mt-1 text-[9px] uppercase font-bold text-slate-400 px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800">
+                          <AdminBadge variant="neutral">
                             {item.status}
-                          </span>
+                          </AdminBadge>
                         )}
                       </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {item.type === 'INITIAL_SUBMISSION' ? `By ${ticket.name}` : 'By Vista Holidays Administration'}
+                      </div>
+                      <p className="text-xs text-slate-300 italic mt-1.5">
+                        "{item.message}"
+                      </p>
                     </div>
-                  );
-                })
-              ) : (
-                <p className="text-xs text-slate-500">No timeline entries recorded.</p>
-              )}
-            </div>
+
+                    <div className="text-[10px] text-slate-400 whitespace-nowrap">
+                      {formatDate(item.createdAt)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </Container>
-    </div>
+
+        {/* Right 1 Column: Sender Information + Update Status Form */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Sender Contact Information */}
+          <div className="p-6 rounded-2xl bg-[#0c1222] border border-slate-800/80 space-y-3.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-800/60">
+              Sender Contact Information
+            </h3>
+
+            <div className="flex items-center gap-3 text-xs">
+              <div className="w-8 h-8 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-400 shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Name</span>
+                <span className="font-bold text-white truncate block">{ticket.name}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs">
+              <div className="w-8 h-8 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-400 shrink-0">
+                <Mail className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Email</span>
+                <span className="font-mono text-slate-200 truncate block">{ticket.email}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs">
+              <div className="w-8 h-8 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-400 shrink-0">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Mobile</span>
+                <span className="text-slate-200 block">{ticket.mobile || 'Not provided'}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs">
+              <div className="w-8 h-8 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-400 shrink-0">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Location</span>
+                <span className="text-slate-200 block truncate">{locationString}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Update Inquiry Status & Admin Message */}
+          <form onSubmit={handleUpdateStatusAndNotify} className="p-6 rounded-2xl bg-[#0c1222] border border-slate-800/80 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-800/60">
+              Update Inquiry Status
+            </h3>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                Progression State
+              </label>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#080d19] border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500"
+              >
+                <option value="Open">Open (Received)</option>
+                <option value="In Progress">In-Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                Admin Message (Optional)
+              </label>
+              <textarea
+                rows={4}
+                value={adminNote}
+                onChange={(e) => setAdminNote(e.target.value)}
+                placeholder="Type resolution message to dispatch to the traveler via Brevo email..."
+                className="w-full p-3 rounded-xl bg-[#080d19] border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 resize-none leading-relaxed"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-950/50 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{submitting ? 'Updating...' : 'Update Status & Notify'}</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </AdminLayout>
   );
 };
 

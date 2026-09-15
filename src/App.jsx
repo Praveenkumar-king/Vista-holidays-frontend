@@ -19,20 +19,29 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import GuestRoute from './components/auth/GuestRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
-// Support Ticket System Pages
+// Public Support Ticket & Documentation Routes
 import ContactPage from './pages/ContactPage';
 import FeedbackPage from './pages/FeedbackPage';
 import TrackStatusPage from './pages/TrackStatusPage';
 import FAQPage from './pages/FAQPage';
+
+// Admin Control Center Pages
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
+import AdminSupportTicketsPage from './pages/admin/AdminSupportTicketsPage';
 import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
 import AdminContactDetailPage from './pages/admin/AdminContactDetailPage';
 import AdminFeedbackMessagesPage from './pages/admin/AdminFeedbackMessagesPage';
 import AdminFeedbackDetailPage from './pages/admin/AdminFeedbackDetailPage';
-
-// What's New / Product Updates
 import AdminProductUpdatesPage from './pages/admin/AdminProductUpdatesPage';
+import AdminAnnouncementsPage from './pages/admin/AdminAnnouncementsPage';
+import AdminMaintenancePage from './pages/admin/AdminMaintenancePage';
+import AdminPlatformSettingsPage from './pages/admin/AdminPlatformSettingsPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+
+// What's New User Experience Tracker
 import { UserProductUpdateTracker } from './components/whats-new';
 
 function App() {
@@ -45,102 +54,202 @@ function App() {
               <AssistantProvider>
                 <BrowserRouter>
                   <Routes>
+                    {/* Public Portal Landmark Shell */}
                     <Route path="/" element={<MainLayout />}>
                       <Route index element={<HomePage />} />
                       <Route path="destinations" element={<DestinationsPage />} />
                       <Route path="destinations/:id" element={<DestinationDetailPage />} />
                       <Route path="weather" element={<WeatherInsightsPage />} />
-                      
+
                       {/* User Authentication Routes */}
-                      <Route 
-                        path="users/register" 
+                      <Route
+                        path="users/register"
                         element={
                           <GuestRoute>
                             <RegisterPage />
                           </GuestRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="users/login" 
+                      <Route
+                        path="users/login"
                         element={
                           <GuestRoute>
                             <LoginPage />
                           </GuestRoute>
-                        } 
+                        }
                       />
                       <Route path="users/verify-email" element={<VerifyEmailPage />} />
 
-                      {/* Complete Support Ticket & Documentation Public Routes */}
+                      {/* Support Ticket & Inquiries Public Routes */}
                       <Route path="contact" element={<ContactPage />} />
                       <Route path="feedback" element={<FeedbackPage />} />
                       <Route path="track-status" element={<TrackStatusPage />} />
                       <Route path="faq" element={<FAQPage />} />
-
-                      {/* Complete Support Ticket System Admin Routes (Protected) */}
-                      <Route path="admin/login" element={<AdminLoginPage />} />
-                      <Route 
-                        path="admin" 
-                        element={
-                          <AdminRoute>
-                            <AdminDashboardPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="admin/contact" 
-                        element={
-                          <AdminRoute>
-                            <AdminContactMessagesPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="admin/contact/:id" 
-                        element={
-                          <AdminRoute>
-                            <AdminContactDetailPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="admin/feedback" 
-                        element={
-                          <AdminRoute>
-                            <AdminFeedbackMessagesPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="admin/feedback/:id" 
-                        element={
-                          <AdminRoute>
-                            <AdminFeedbackDetailPage />
-                          </AdminRoute>
-                        } 
-                      />
-
-                      {/* What's New / Product Updates Admin Routes (Protected) */}
-                      <Route 
-                        path="admin/whats-new" 
-                        element={
-                          <AdminRoute>
-                            <AdminProductUpdatesPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="admin/product-updates" 
-                        element={
-                          <AdminRoute>
-                            <AdminProductUpdatesPage />
-                          </AdminRoute>
-                        } 
-                      />
-
-                      {/* 404 Fallback */}
-                      <Route path="*" element={<NotFoundPage />} />
                     </Route>
+
+                    {/* Admin Authentication (Standalone Dark Interface) */}
+                    <Route path="admin/login" element={<AdminLoginPage />} />
+
+                    {/* Protected Administration Hub Routes */}
+                    <Route
+                      path="admin"
+                      element={
+                        <AdminRoute>
+                          <AdminDashboardPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Users Directory & Detailed Inspection */}
+                    <Route
+                      path="admin/users"
+                      element={
+                        <AdminRoute>
+                          <AdminUsersPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/users/:id"
+                      element={
+                        <AdminRoute>
+                          <AdminUserDetailPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Support Tickets Unified Directory */}
+                    <Route
+                      path="admin/support-tickets"
+                      element={
+                        <AdminRoute>
+                          <AdminSupportTicketsPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/support"
+                      element={
+                        <AdminRoute>
+                          <AdminSupportTicketsPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Contact Desk Inquiries */}
+                    <Route
+                      path="admin/contact"
+                      element={
+                        <AdminRoute>
+                          <AdminContactMessagesPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/contact/:id"
+                      element={
+                        <AdminRoute>
+                          <AdminContactDetailPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Traveler Feedback & Reviews */}
+                    <Route
+                      path="admin/feedback"
+                      element={
+                        <AdminRoute>
+                          <AdminFeedbackMessagesPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/feedback/:id"
+                      element={
+                        <AdminRoute>
+                          <AdminFeedbackDetailPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* What's New & Product Updates */}
+                    <Route
+                      path="admin/whats-new"
+                      element={
+                        <AdminRoute>
+                          <AdminProductUpdatesPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/product-updates"
+                      element={
+                        <AdminRoute>
+                          <AdminProductUpdatesPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Platform Announcements */}
+                    <Route
+                      path="admin/announcements"
+                      element={
+                        <AdminRoute>
+                          <AdminAnnouncementsPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/platform-announcements"
+                      element={
+                        <AdminRoute>
+                          <AdminAnnouncementsPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Platform Maintenance Mode Control */}
+                    <Route
+                      path="admin/maintenance"
+                      element={
+                        <AdminRoute>
+                          <AdminMaintenancePage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Platform & Infrastructure Settings */}
+                    <Route
+                      path="admin/platform-settings"
+                      element={
+                        <AdminRoute>
+                          <AdminPlatformSettingsPage />
+                        </AdminRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/settings"
+                      element={
+                        <AdminRoute>
+                          <AdminPlatformSettingsPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Platform Analytics & Intelligence */}
+                    <Route
+                      path="admin/analytics"
+                      element={
+                        <AdminRoute>
+                          <AdminAnalyticsPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* 404 Fallback */}
+                    <Route path="*" element={<NotFoundPage />} />
                   </Routes>
+
                   {/* Global Floating AI Travel Assistant */}
                   <TravelAssistant />
                   {/* Non-intrusive Offline / Online Network Monitor */}
