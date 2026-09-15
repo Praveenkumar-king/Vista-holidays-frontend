@@ -9,7 +9,8 @@ import {
   Send,
   CloudSun,
   MessageSquare,
-  Bot
+  Bot,
+  Luggage
 } from 'lucide-react';
 import { getDestinationById } from '../data/destinations';
 import { fetchCurrentWeather } from '../services/weatherService';
@@ -27,6 +28,7 @@ import {
 } from '../components/destinations';
 import { WeatherCard, WeatherSkeleton, WeatherError } from '../components/weather';
 import { ItineraryPlanner } from '../components/itinerary';
+import { DestinationBookingCard } from '../components/booking/DestinationBookingCard';
 
 export const DestinationDetailPage = () => {
   const { id } = useParams();
@@ -99,6 +101,10 @@ export const DestinationDetailPage = () => {
     });
   };
 
+  const scrollToBooking = () => {
+    document.getElementById('book-destination')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const scrollToPlanner = () => {
     document.getElementById('plan-trip')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -166,6 +172,32 @@ export const DestinationDetailPage = () => {
           <div className="space-y-6">
             <DestinationMeta destination={destination} />
 
+            {/* Direct Booking Action Card matching Vista Holidays Design System */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-brand-600 to-indigo-700 text-white shadow-card space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white">
+                  <Luggage className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-display font-bold text-base text-white leading-tight">
+                    Ready to Visit {name}?
+                  </h4>
+                  <p className="text-xs text-white/80">
+                    Curated packages starting at ₹5,000/day
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="accent"
+                size="md"
+                onClick={scrollToBooking}
+                className="w-full justify-center shadow-lg font-bold"
+                iconLeft={Luggage}
+              >
+                Book Now
+              </Button>
+            </div>
+
             {/* AI Trip Assistant Action Card */}
             <Card variant="subtle" className="p-6 text-center bg-gradient-to-br from-brand-50 to-indigo-50 border-brand-100 shadow-card space-y-3">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-sm">
@@ -202,6 +234,13 @@ export const DestinationDetailPage = () => {
             </Card>
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* 2.5. BOOK DESTINATION PACKAGE (Direct Booking Configuration & Checkout)   */}
+        {/* ========================================================================= */}
+        <section id="book-destination" className="scroll-mt-24" aria-label={`Book Trip to ${name}`}>
+          <DestinationBookingCard destination={destination} />
+        </section>
 
         {/* ========================================================================= */}
         {/* 3. FAMOUS PLACES TO EXPLORE IN THIS DESTINATION                           */}

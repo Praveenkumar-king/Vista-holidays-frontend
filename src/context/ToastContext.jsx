@@ -1,16 +1,26 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const lastToastRef = useRef({ key: '', time: 0 });
 
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback(({ type = 'info', title, message, duration = 4500 }) => {
+  const addToast = useCallback(({ type = 'info', title = '', message = '', duration = 4500 }) => {
+    const toastKey = `${type}::${title}::${message}`;
+    const now = Date.now();
+
+    // Prevent identical toasts from flooding within 1500ms
+    if (lastToastRef.current.key === toastKey && (now - lastToastRef.current.time) < 1500) {
+      return null;
+    }
+    lastToastRef.current = { key: toastKey, time: now };
+
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
 
     setToasts((prev) => [...prev, { id, type, title, message }]);
@@ -24,16 +34,22 @@ export const ToastProvider = ({ children }) => {
     return id;
   }, [removeToast]);
 
-  const toast = {
+  const toast = useMemo(() => ({
     success: (message, title = 'Success') => addToast({ type: 'success', title, message }),
     error: (message, title = 'Error') => addToast({ type: 'error', title, message }),
     warning: (message, title = 'Notice') => addToast({ type: 'warning', title, message }),
     info: (message, title = 'Info') => addToast({ type: 'info', title, message }),
     dismiss: removeToast
-  };
+  }), [addToast, removeToast]);
+
+  const contextValue = useMemo(() => ({
+    toast,
+    addToast,
+    removeToast
+  }), [toast, addToast, removeToast]);
 
   return (
-    <ToastContext.Provider value={{ toast, addToast, removeToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </ToastContext.Provider>

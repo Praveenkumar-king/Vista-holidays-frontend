@@ -40,6 +40,8 @@ import AdminAnnouncementsPage from './pages/admin/AdminAnnouncementsPage';
 import AdminMaintenancePage from './pages/admin/AdminMaintenancePage';
 import AdminPlatformSettingsPage from './pages/admin/AdminPlatformSettingsPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import AdminTransactionsPage from './pages/admin/AdminTransactionsPage';
+import MyBookingsPage from './pages/MyBookingsPage';
 
 // What's New User Experience Tracker
 import { UserProductUpdateTracker } from './components/whats-new';
@@ -79,6 +81,8 @@ function App() {
                         }
                       />
                       <Route path="users/verify-email" element={<VerifyEmailPage />} />
+                      <Route path="users/bookings" element={<MyBookingsPage />} />
+                      <Route path="bookings" element={<MyBookingsPage />} />
 
                       {/* Support Ticket & Inquiries Public Routes */}
                       <Route path="contact" element={<ContactPage />} />
@@ -96,6 +100,16 @@ function App() {
                       element={
                         <AdminRoute>
                           <AdminDashboardPage />
+                        </AdminRoute>
+                      }
+                    />
+
+                    {/* Admin Transactions & Financial Telemetry */}
+                    <Route
+                      path="admin/transactions"
+                      element={
+                        <AdminRoute>
+                          <AdminTransactionsPage />
                         </AdminRoute>
                       }
                     />

@@ -30,6 +30,7 @@ export const VerifyEmailPage = () => {
   const canvasRef = useRef(null);
   const redirectTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
+  const hasRequestedRef = useRef(false);
 
   // Extract token from URL query string
   const token = new URLSearchParams(location.search).get('token');
@@ -43,17 +44,25 @@ export const VerifyEmailPage = () => {
       return;
     }
 
+    // Strict idempotency protection: execute API request strictly ONCE per token
+    if (hasRequestedRef.current) return;
+    hasRequestedRef.current = true;
+
     const performVerification = async () => {
       try {
         const response = await authService.verifyEmail(token);
         if (!isMounted) return;
 
-        if (response.success) {
+        if (response.alreadyVerified || response.data?.alreadyVerified) {
+          setStatus('already_verified');
+          toast.info('Your email has already been verified. Please sign in.', 'Already Verified');
+        } else if (response.success) {
           setStatus('success');
           toast.success('Your Vista Holidays account has been successfully verified!', 'Account Activated');
         } else {
           setStatus('invalid');
           setErrorMessage(response.message || 'Invalid verification link.');
+          toast.error(response.message || 'Invalid verification link.', 'Verification Failed');
         }
       } catch (error) {
         if (!isMounted) return;
@@ -81,17 +90,17 @@ export const VerifyEmailPage = () => {
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
-  }, [token, toast]);
+  }, [token]);
 
   // Tasteful, finite Confetti Celebration for Success state
   useEffect(() => {
-    if (status !== 'success') return;
+    if (status !== 'success' && status !== 'already_verified') return;
 
     // Check prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animationFrameId;
 
-    if (!prefersReducedMotion && canvasRef.current) {
+    if (status === 'success' && !prefersReducedMotion && canvasRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       const width = (canvas.width = canvas.offsetWidth || 500);
@@ -243,6 +252,41 @@ export const VerifyEmailPage = () => {
                 <Link to="/users/login">
                   <Button variant="primary" size="md" iconRight={ArrowRight} className="font-bold shadow-md">
                     Proceed to Sign In Now
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* STATE 2B: Already Verified State */}
+          {status === 'already_verified' && (
+            <div className="py-4 animate-fade-in relative z-20">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mx-auto mb-4 shadow-inner">
+                <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                Already Verified
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-slate-900 tracking-tight mb-3">
+                Account Already Verified
+              </h1>
+
+              <p className="text-base text-slate-600 max-w-md mx-auto mb-6 leading-relaxed font-sans">
+                Your email address has already been successfully verified. You can sign in and continue exploring destinations on Vista Holidays.
+              </p>
+
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 max-w-xs mx-auto mb-6 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+                <Clock className="w-4 h-4 text-brand-600" />
+                <span>Redirecting to Sign In in <strong>{countdown}</strong> second{countdown === 1 ? '' : 's'}...</span>
+              </div>
+
+              <div className="flex justify-center">
+                <Link to="/users/login">
+                  <Button variant="primary" size="md" iconRight={ArrowRight} className="font-bold shadow-md">
+                    Sign In Now
                   </Button>
                 </Link>
               </div>

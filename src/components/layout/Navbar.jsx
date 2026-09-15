@@ -9,7 +9,8 @@ import {
   ArrowRight,
   LogOut,
   User as UserIcon,
-  Headphones
+  Headphones,
+  Luggage
 } from 'lucide-react';
 import { Container } from './Container';
 import { Button } from '../ui/Button';
@@ -144,6 +145,17 @@ export const Navbar = () => {
             {/* Authentication Action or User Profile */}
             {isAuthenticated ? (
               <div className="flex items-center gap-2 pl-2 border-l border-slate-200/50">
+                <Link
+                  to="/users/bookings"
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                    isHomeTop ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+                  }`}
+                  title="My Bookings"
+                >
+                  <Luggage className="w-3.5 h-3.5 text-brand-600" />
+                  <span>My Bookings</span>
+                </Link>
+
                 <div
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${
                     isHomeTop ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-800'
@@ -220,28 +232,41 @@ export const Navbar = () => {
           >
             {/* User Session Banner in Mobile Drawer */}
             {isAuthenticated ? (
-              <div className={`p-3 rounded-2xl flex items-center justify-between mb-3 ${
-                isHomeTop ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-900'
-              }`}>
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                    {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+              <>
+                <div className={`p-3 rounded-2xl flex items-center justify-between mb-3 ${
+                  isHomeTop ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-900'
+                }`}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-semibold truncate">{currentUser?.name}</span>
+                      <span className="text-[11px] text-slate-400 truncate">{currentUser?.email}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-semibold truncate">{currentUser?.name}</span>
-                    <span className="text-[11px] text-slate-400 truncate">{currentUser?.email}</span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex-shrink-0"
+                    title="Sign Out"
+                    aria-label="Sign Out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex-shrink-0"
-                  title="Sign Out"
-                  aria-label="Sign Out"
+
+                {/* My Bookings link in mobile drawer */}
+                <Link
+                  to="/users/bookings"
+                  className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-colors ${
+                    isHomeTop ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+                  }`}
                 >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
+                  <Luggage className="w-4 h-4 text-brand-600" />
+                  <span>My Bookings</span>
+                </Link>
+              </>
             ) : (
               <div className="flex items-center gap-2 mb-3">
                 <Link to="/users/login" className="flex-1">

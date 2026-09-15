@@ -17,13 +17,15 @@ import {
   Menu,
   X,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Receipt
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
 
 const NAV_ITEMS = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
+  { name: 'Transactions', path: '/admin/transactions', icon: Receipt },
   { name: 'Users', path: '/admin/users', icon: Users },
   { name: 'Support Tickets', path: '/admin/support-tickets', icon: HelpCircle },
   { name: 'Contact Messages', path: '/admin/contact', icon: Mail },
