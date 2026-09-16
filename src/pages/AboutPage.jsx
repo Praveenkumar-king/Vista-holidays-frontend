@@ -16,10 +16,6 @@ import {
   Target,
   Eye,
   Zap,
-  Server,
-  Database,
-  Code2,
-  Cpu,
   Lock,
   Layers,
   Bot,
@@ -32,21 +28,6 @@ import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { useTravelAssistant } from '../hooks/useTravelAssistant';
 
-// Platform Technologies actually used in Vista Holidays
-const TECHNOLOGIES = [
-  { name: 'React 18', role: 'Frontend UI Engine', icon: Code2, category: 'Frontend' },
-  { name: 'Vite', role: 'Next-Gen Build Tool', icon: Zap, category: 'Tooling' },
-  { name: 'Tailwind CSS', role: 'Design System & Utility UI', icon: Layers, category: 'Styling' },
-  { name: 'Node.js', role: 'Server Runtime Environment', icon: Server, category: 'Backend' },
-  { name: 'Express.js', role: 'RESTful API Architecture', icon: Server, category: 'Backend' },
-  { name: 'MongoDB', role: 'Database & Data Modeling', icon: Database, category: 'Database' },
-  { name: 'Gemini AI', role: 'Intelligent Travel Concierge', icon: Bot, category: 'AI' },
-  { name: 'OpenWeather', role: 'Live Weather Telemetry', icon: CloudSun, category: 'Weather' },
-  { name: 'Pexels', role: 'Curated Landscape Photography', icon: Globe, category: 'Media' },
-  { name: 'Razorpay', role: 'Payment Gateway Integration', icon: CreditCard, category: 'Payments' },
-  { name: 'Cloudinary', role: 'Cloud Asset Optimization', icon: Layers, category: 'Media' },
-  { name: 'Brevo SMTP', role: 'Transactional Email Service', icon: Headphones, category: 'Communication' }
-];
 
 // Core Platform Offerings
 const OFFERINGS = [
@@ -353,7 +334,7 @@ export const AboutPage = () => {
                   Instead of moving between multiple disconnected platforms to research destinations, check weather forecasts, plan daily itineraries, ask travel questions, and manage reservations, Vista Holidays brings these experiences together in one connected platform.
                 </p>
                 <p>
-                  By combining rich worldwide destination insights, live meteorological telemetry from OpenWeather, intelligent generative assistance from Gemini AI, and secure online bookings with Razorpay, we empower travelers to make better, more confident decisions from initial discovery to journey's end.
+                  By combining rich worldwide destination insights, live meteorological telemetry from Weather Source, intelligent generative assistance from AI, and secure online bookings, we empower travelers to make better, more confident decisions from initial discovery to journey's end.
                 </p>
               </div>
 
@@ -642,52 +623,9 @@ export const AboutPage = () => {
         </Container>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 7. TECHNOLOGY SECTION                                                     */}
-      {/* ========================================================================= */}
-      <section className="py-20 lg:py-28 bg-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
-        {/* Subtle Ambient Glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
-
-        <Container size="xl" className="relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-brand-400 mb-2">
-              <Cpu className="w-3.5 h-3.5" />
-              <span>Engineering Excellence</span>
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Powered by Modern Technology
-            </h2>
-            <p className="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">
-              Vista Holidays is engineered with modern, full-stack tools to ensure lightning-fast discovery, resilience, and security.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {TECHNOLOGIES.map((tech) => {
-              const Icon = tech.icon;
-              return (
-                <div
-                  key={tech.name}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-brand-400/50 transition-all duration-200 flex items-center gap-3.5 shadow-sm"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center flex-shrink-0 border border-brand-400/20">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold text-white truncate">{tech.name}</div>
-                    <div className="text-[11px] text-slate-400 truncate">{tech.role}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
 
       {/* ========================================================================= */}
-      {/* 8. TRUST & PLATFORM INTEGRITY SECTION                                     */}
+      {/* 7. TRUST & PLATFORM INTEGRITY SECTION                                     */}
       {/* ========================================================================= */}
       <section className="py-20 lg:py-28 bg-white border-b border-slate-200/80">
         <Container size="xl">
@@ -728,7 +666,7 @@ export const AboutPage = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 9. FINAL CALL TO ACTION                                                   */}
+      {/* 8. FINAL CALL TO ACTION                                                   */}
       {/* ========================================================================= */}
       <section className="py-20 lg:py-28 bg-gradient-to-br from-brand-600 via-brand-700 to-slate-900 text-white relative overflow-hidden">
         {/* Ambient Overlay Lights */}
