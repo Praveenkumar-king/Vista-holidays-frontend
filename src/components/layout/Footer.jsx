@@ -43,6 +43,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/about" className="text-slate-600 hover:text-brand-600 transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
                 <Link to="/#places" className="text-slate-600 hover:text-brand-600 transition-colors">
                   Famous Places
                 </Link>
@@ -103,6 +108,9 @@ export const Footer = () => {
         <div className="pt-8 mt-12 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© {currentYear} Vista Holidays. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-5 sm:gap-6">
+            <Link to="/about" className="hover:text-brand-600 transition-colors">
+              About Us
+            </Link>
             <Link to="/terms" className="hover:text-brand-600 transition-colors">
               Terms &amp; Conditions
             </Link>

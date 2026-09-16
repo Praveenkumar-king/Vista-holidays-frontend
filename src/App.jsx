@@ -33,6 +33,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
 // Public Support Ticket & Documentation Routes
+import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import FeedbackPage from './pages/FeedbackPage';
 import TrackStatusPage from './pages/TrackStatusPage';
@@ -61,6 +62,13 @@ import MyBookingsPage from './pages/MyBookingsPage';
 
 // What's New User Experience Tracker
 import { UserProductUpdateTracker } from './components/whats-new';
+import { usePageMetadata } from './hooks/usePageMetadata';
+
+// Centralized Document Title & Route Metadata Manager
+function PageMetadataManager() {
+  usePageMetadata();
+  return null;
+}
 
 function App() {
   return (
@@ -71,6 +79,8 @@ function App() {
             <LocationProvider>
               <AssistantProvider>
                 <BrowserRouter>
+                  {/* Centralized Document Title & Route Metadata Manager */}
+                  <PageMetadataManager />
                   <Routes>
                     {/* Public Portal Landmark Shell */}
                     <Route path="/" element={<MainLayout />}>
@@ -121,6 +131,10 @@ function App() {
                       />
                       <Route path="user/verify-email" element={<VerifyEmailPage />} />
                       <Route path="users/verify-email" element={<VerifyEmailPage />} />
+
+                      {/* About Us Routes */}
+                      <Route path="about" element={<AboutPage />} />
+                      <Route path="about-us" element={<AboutPage />} />
 
                       {/* Support Ticket & Inquiries Public Routes */}
                       <Route path="contact" element={<ContactPage />} />

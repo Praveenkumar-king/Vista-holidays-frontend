@@ -75,11 +75,6 @@ export const PrivacyPage = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Set document title
-  useEffect(() => {
-    document.title = 'Privacy Policy | Vista Holidays';
-  }, []);
-
   // Track scroll reading progress and active section
   useEffect(() => {
     const handleScroll = () => {

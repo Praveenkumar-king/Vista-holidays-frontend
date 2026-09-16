@@ -54,11 +54,6 @@ export const FAQPage = () => {
 
   const searchInputRef = useRef(null);
 
-  // Set document title
-  useEffect(() => {
-    document.title = 'Frequently Asked Questions | Vista Holidays';
-  }, []);
-
   // Compute question count per category for badges
   const categoryCounts = useMemo(() => {
     const counts = { all: FAQ_ITEMS.length };

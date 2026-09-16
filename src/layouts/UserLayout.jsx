@@ -276,6 +276,9 @@ export const UserLayout = ({ children }) => {
                 <Link to="/destinations" className="hover:text-brand-600 transition-colors">
                   Explore
                 </Link>
+                <Link to="/about" className="hover:text-brand-600 transition-colors">
+                  About
+                </Link>
                 <Link to="/contact" className="hover:text-brand-600 transition-colors">
                   Support
                 </Link>

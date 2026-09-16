@@ -11,7 +11,8 @@ import {
   User as UserIcon,
   Headphones,
   Luggage,
-  LayoutDashboard
+  LayoutDashboard,
+  Sparkles
 } from 'lucide-react';
 import { Container } from './Container';
 import { Button } from '../ui/Button';
@@ -61,6 +62,7 @@ export const Navbar = () => {
       : [{ name: 'Home', path: '/', exact: true }]),
     { name: 'Destinations', path: '/destinations', icon: MapPin },
     { name: 'Weather', path: '/weather', icon: CloudSun },
+    { name: 'About Us', path: '/about', icon: Sparkles },
     { name: 'Support', path: '/contact', icon: Headphones },
     ...(isAuthenticated ? [{ name: 'My Bookings', path: '/user/bookings', icon: Luggage }] : [])
   ];

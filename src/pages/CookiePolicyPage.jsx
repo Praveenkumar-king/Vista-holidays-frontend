@@ -69,11 +69,6 @@ export const CookiePolicyPage = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Set document title
-  useEffect(() => {
-    document.title = 'Cookie Policy | Vista Holidays';
-  }, []);
-
   // Track scroll reading progress and active section
   useEffect(() => {
     const handleScroll = () => {

@@ -73,11 +73,6 @@ export const TermsPage = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Set document title
-  useEffect(() => {
-    document.title = 'Terms & Conditions | Vista Holidays';
-  }, []);
-
   // Track scroll reading progress and active section
   useEffect(() => {
     const handleScroll = () => {

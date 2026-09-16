@@ -2,10 +2,8 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar, Footer } from '../components/layout';
 import { PlatformNotificationBar } from '../components/common';
-import { usePageMetadata } from '../hooks/usePageMetadata';
 
 export const MainLayout = () => {
-  usePageMetadata();
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-brand-500 selection:text-white">
