@@ -27,6 +27,7 @@ const STATIC_ROUTE_TITLES = {
   // Public Core
   '/': 'Home',
   '/destinations': 'Destinations',
+  '/checkout': 'Checkout',
   '/weather': 'Weather',
   '/about': 'About Us',
   '/about-us': 'About Us',

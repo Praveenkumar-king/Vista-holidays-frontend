@@ -11,6 +11,7 @@ import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import DestinationsPage from './pages/DestinationsPage';
 import DestinationDetailPage from './pages/DestinationDetailPage';
+import CheckoutPage from './pages/CheckoutPage';
 import WeatherInsightsPage from './pages/WeatherInsightsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
@@ -87,6 +88,7 @@ function App() {
                       <Route index element={<HomePage />} />
                       <Route path="destinations" element={<DestinationsPage />} />
                       <Route path="destinations/:id" element={<DestinationDetailPage />} />
+                      <Route path="checkout" element={<CheckoutPage />} />
                       <Route path="weather" element={<WeatherInsightsPage />} />
 
                       {/* Legacy User Portal Alias Redirects */}
