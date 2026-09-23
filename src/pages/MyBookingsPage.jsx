@@ -15,7 +15,8 @@ import {
   Search,
   Receipt,
   X,
-  Compass
+  Compass,
+  FileText
 } from 'lucide-react';
 import { Container } from '../components/layout/Container';
 import { Button } from '../components/ui/Button';
@@ -35,9 +36,31 @@ export const MyBookingsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [downloadingBookingId, setDownloadingBookingId] = useState(null);
 
   // Extract optional ?id=... from query parameters for deep linking from confirmation email
   const queryParamBookingId = new URLSearchParams(location.search).get('id');
+
+  const isPaidBooking = (booking) => {
+    if (!booking) return false;
+    const status = booking.bookingStatus?.toLowerCase();
+    const payment = booking.paymentStatus?.toLowerCase();
+    return (status === 'confirmed' || status === 'completed') && payment === 'paid';
+  };
+
+  const handleDownloadInvoice = async (booking) => {
+    if (!booking || downloadingBookingId) return;
+
+    setDownloadingBookingId(booking.bookingId);
+    try {
+      await bookingService.downloadInvoice(booking.bookingId, booking.invoiceNumber);
+      toast.success(`Invoice for booking ${booking.bookingId} downloaded successfully!`, 'Invoice Downloaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to download invoice. Please try again.', 'Download Error');
+    } finally {
+      setDownloadingBookingId(null);
+    }
+  };
 
   const fetchBookings = async () => {
     if (!isAuthenticated) return;
@@ -256,7 +279,7 @@ export const MyBookingsPage = () => {
                 </div>
 
                 {/* Footer Action */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                   <span className="text-[11px] text-slate-400">
                     {new Date(b.createdAt).toLocaleDateString('en-IN', {
                       day: 'numeric',
@@ -264,14 +287,38 @@ export const MyBookingsPage = () => {
                       year: 'numeric'
                     })}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedBooking(b)}
-                    className="font-bold text-xs"
-                  >
-                    View Details
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {isPaidBooking(b) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={downloadingBookingId === b.bookingId}
+                        onClick={() => handleDownloadInvoice(b)}
+                        className="font-bold text-xs text-brand-600 hover:text-brand-700 hover:bg-brand-50 border-brand-200"
+                        title="Download official tax invoice"
+                      >
+                        {downloadingBookingId === b.bookingId ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                            Downloading...
+                          </>
+                        ) : (
+                          <>
+                            <FileText className="w-3.5 h-3.5 mr-1.5" />
+                            Download Invoice
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedBooking(b)}
+                      className="font-bold text-xs"
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -377,7 +424,30 @@ export const MyBookingsPage = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+                <div>
+                  {isPaidBooking(selectedBooking) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={downloadingBookingId === selectedBooking.bookingId}
+                      onClick={() => handleDownloadInvoice(selectedBooking)}
+                      className="font-bold text-xs text-brand-600 hover:text-brand-700 hover:bg-brand-50 border-brand-200"
+                    >
+                      {downloadingBookingId === selectedBooking.bookingId ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                          Downloading...
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="w-3.5 h-3.5 mr-1.5" />
+                          Download Invoice
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <Button variant="primary" size="sm" onClick={() => setSelectedBooking(null)}>
                   Done
                 </Button>
