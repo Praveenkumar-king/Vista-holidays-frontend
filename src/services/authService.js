@@ -69,6 +69,26 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify({ version })
     });
+  },
+
+  /**
+   * Request a 6-digit Sign-in OTP
+   */
+  sendLoginOtp: async (email) => {
+    return apiClient('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+  },
+
+  /**
+   * Verify Sign-in OTP and establish session
+   */
+  verifyLoginOtp: async ({ email, otp }) => {
+    return apiClient('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp })
+    });
   }
 };
 

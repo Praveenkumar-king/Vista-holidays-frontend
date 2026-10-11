@@ -101,6 +101,90 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
+   * Send login OTP to user's email
+   */
+  const sendLoginOtp = async (email) => {
+    try {
+      const response = await authService.sendLoginOtp(email);
+      toast.success(response.message || `OTP sent to ${email}`, 'OTP Sent');
+      return { success: true, data: response.data, message: response.message };
+    } catch (error) {
+      const isUnverified = error.unverified || error.data?.unverified;
+      if (isUnverified) {
+        return {
+          success: false,
+          unverified: true,
+          email: error.email || error.data?.email || email,
+          message: error.message || 'Please verify your email before signing in.'
+        };
+      }
+      if (error.code === 'MAINTENANCE_MODE' || error.status === 503) {
+        toast.warning(error.message || 'System under maintenance.', 'Maintenance Active');
+        return {
+          success: false,
+          maintenance: true,
+          message: error.message || 'System under maintenance. User login is temporarily disabled.'
+        };
+      }
+      if (error.code === 'COOLDOWN_ACTIVE') {
+        toast.warning(error.message || 'Please wait before requesting another OTP.', 'Cooldown Active');
+        return {
+          success: false,
+          cooldown: true,
+          remainingSeconds: error.data?.remainingSeconds,
+          message: error.message
+        };
+      }
+      toast.error(error.message || 'Failed to send OTP.', 'OTP Request Failed');
+      return {
+        success: false,
+        message: error.message || 'Failed to send OTP.'
+      };
+    }
+  };
+
+  /**
+   * Verify OTP and complete login
+   */
+  const loginWithOtp = async ({ email, otp }) => {
+    try {
+      const response = await authService.verifyLoginOtp({ email, otp });
+      if (response.success && response.data?.user) {
+        const user = response.data.user;
+        setCurrentUser(user);
+        toast.success(`Welcome back, ${user.name}!`, 'Signed In');
+        evaluateTermsRequirement(user);
+        return { success: true, user };
+      }
+      return { success: false, message: response.message || 'OTP verification failed' };
+    } catch (error) {
+      const isUnverified = error.unverified || error.data?.unverified;
+      if (isUnverified) {
+        return {
+          success: false,
+          unverified: true,
+          email: error.email || error.data?.email || email,
+          message: error.message || 'Please verify your email before signing in.'
+        };
+      }
+      if (error.code === 'MAINTENANCE_MODE' || error.status === 503) {
+        toast.warning(error.message || 'System under maintenance.', 'Maintenance Active');
+        return {
+          success: false,
+          maintenance: true,
+          message: error.message || 'System under maintenance.'
+        };
+      }
+      toast.error(error.message || 'Invalid or expired OTP.', 'Verification Failed');
+      return {
+        success: false,
+        code: error.code,
+        message: error.message || 'Invalid or expired OTP.'
+      };
+    }
+  };
+
+  /**
    * Register new user
    */
   const register = async (userData) => {
@@ -201,6 +285,8 @@ export const AuthProvider = ({ children }) => {
     isAdmin: currentUser?.role === 'admin',
     loading,
     login,
+    loginWithOtp,
+    sendLoginOtp,
     logout,
     register,
     refreshUser,
